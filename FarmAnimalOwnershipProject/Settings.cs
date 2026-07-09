@@ -1,37 +1,54 @@
 using Mutagen.Bethesda.WPF.Reflection.Attributes;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+
 
 namespace FarmAnimalOwnershipProject
 {
-    // Settings class designed for Synthesis UI (uses Mutagen WPF attributes)
-    // Lists are exposed as semicolon-separated strings for easy editing in the UI.
-    public class PatcherSettings
+    // FarmAnimalOwnership settings moved into this shared Settings.cs file
+    public class Settings
     {
-        [SettingName("Enable Logging")]
-        [Tooltip("Enable verbose logging (kept for compatibility)")]
-        [JsonProperty]
+
+        // Whether to enable verbose logging (kept for compatibility)
         public bool EnableLogging { get; set; } = false;
 
-        [SettingName("Include Race Terms")]
-        [Tooltip("Semicolon-separated list of race EDID substrings to include (e.g. Goat;Cow)")]
-        [JsonProperty]
-        public string IncludeRaceTerms { get; set; } = "Goat;Chicken;Cow;Horse;Pig;Sheep;Dog;Cat;Bunny;Husky";
+        // The animal races we are looking for
+        [SettingName("IncludeRaceTerms")]
+        [Tooltip("Races to patch")]
+        public string[] IncludeRaceTerms { get; set; } =
+        {
+            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky"
+        };
 
-        [SettingName("Exclude Name Terms")]
-        [Tooltip("Semicolon-separated list of NPC name substrings to exclude (e.g. Wild;Bandit)")]
-        [JsonProperty]
-        public string ExcludeNameTerms { get; set; } = "Wild;Bandit;Forsworn;Sabre;Pigeon;Zombie;Draugr;Durzog";
+        // Animal names we want to exclude
+        [SettingName("ExcludeNameTerms")]
+        [Tooltip("Actor names to exclude from patching")]
+        public string[] ExcludeNameTerms { get; set; } =
+        {
+            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray"
+        };
 
-        [SettingName("Exclude Plugins")]
-        [Tooltip("Semicolon-separated list of plugin wildcard patterns to exclude (e.g. Vigilant.esm;*FollowerFramework*)")]
-        [JsonProperty]
-        public string ExcludePlugins { get; set; } = "Vigilant.esm;*FollowerFramework*;*SkyrimUnderground*;*HearthFire*;cc*";
+        // Plugin exclusion  (wildcards supported)
+        [SettingName("ExcludePlugins")]
+        [Tooltip("Plugins to exclude from patching")]
+        public string[] ExcludePlugins { get; set; } =
+        {
+            "Vigilant.esm", "*FollowerFramework*", "*SkyrimUnderground*", "*HearthFire*", "cc*"
+        };
 
-        [SettingName("Exclude Cell Rules")]
-        [Tooltip("Semicolon-separated list of cell EDID wildcard rules to exclude (e.g. BYOH*)")]
-        [JsonProperty]
-        public string ExcludeCellRules { get; set; } = "BYOH*";
+        // Cell exclusion  (wildcards supported)
+        [SettingName("ExcludeCellRules")]
+        [Tooltip("Cells to exclude from patching")]
+        public string[] ExcludeCellRules { get; set; } =
+        {
+            "BYOH*", "cc*"
+        };
     }
-}
 
+}

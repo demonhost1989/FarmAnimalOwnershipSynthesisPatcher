@@ -1,0 +1,37 @@
+﻿{
+  "EnableLogging": false,
+  "IncludeRaceTerms": [
+    "Goat",
+    "Chicken",
+    "Cow",
+    "Horse",
+    "Pig",
+    "Sheep",
+    "Dog",
+    "Cat",
+    "Bunny",
+    "Husky"
+  ],
+  "ExcludeNameTerms": [
+    "Wild",
+    "Bandit",
+    "Forsworn",
+    "Sabre",
+    "Pigeon",
+    "Zombie",
+    "Draugr",
+    "Durzog",
+    "Stray"
+  ],
+  "ExcludePlugins": [
+    "Vigilant.esm",
+    "*FollowerFramework*",
+    "*SkyrimUnderground*",
+    "*HearthFire*",
+    "cc*"
+  ],
+  "ExcludeCellRules": [
+    "BYOH*",
+    "cc*"
+  ]
+}
