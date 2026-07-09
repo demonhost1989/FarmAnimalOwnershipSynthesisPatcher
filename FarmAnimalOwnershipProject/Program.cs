@@ -201,7 +201,7 @@ namespace FarmAnimalOwnershipProject
                     animalRaceCounts[displayRace] = raceCount + 1;
 
                     // Now exclude farm animals by name terms (record them for the exclusion summary)
-                    if (Settings.ExcludeNameTerms != null && Settings.ExcludeNameTerms.Length > 0 &&
+                    if (Settings.ExcludeNameTerms != null && Settings.ExcludeNameTerms.Count > 0 &&
                         Settings.ExcludeNameTerms.Any(term => animalLabel.Contains(term, StringComparison.OrdinalIgnoreCase)))
                     {
                         if (!excludedNamesByRule.TryGetValue(animalLabel, out var list))
@@ -216,7 +216,7 @@ namespace FarmAnimalOwnershipProject
 
                     // Wildcard-aware cell exclusion
                     bool cellExcluded = false;
-                    if (Settings.ExcludeCellRules != null && Settings.ExcludeCellRules.Length > 0)
+                    if (Settings.ExcludeCellRules != null && Settings.ExcludeCellRules.Count > 0)
                     {
                         foreach (var rule in Settings.ExcludeCellRules)
                         {
@@ -250,7 +250,7 @@ namespace FarmAnimalOwnershipProject
 
 
                     // Exclude animals by name terms first (record them for the exclusion summary)
-                    if (Settings.ExcludeNameTerms != null && Settings.ExcludeNameTerms.Length > 0 && Settings.ExcludeNameTerms.Any(term => animalLabel.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                    if (Settings.ExcludeNameTerms != null && Settings.ExcludeNameTerms.Count > 0 && Settings.ExcludeNameTerms.Any(term => animalLabel.Contains(term, StringComparison.OrdinalIgnoreCase)))
 
                     {
                         // record in simple plugin list
@@ -437,7 +437,7 @@ namespace FarmAnimalOwnershipProject
 
                     // Plugin rules (wildcard patterns)
                     var excludedPluginNames = excludedAnimalsByPlugin.Keys.ToList();
-                    foreach (var rule in Settings.ExcludePlugins ?? Array.Empty<string>())
+                    foreach (var rule in Settings.ExcludePlugins ?? new List<string>())
                     {
                         int count = excludedPluginNames
                             .Where(pluginName => RuleMatchesPlugin(rule, pluginName))
@@ -449,7 +449,7 @@ namespace FarmAnimalOwnershipProject
                     }
 
                     // Cell rules
-                    foreach (var rule in Settings.ExcludeCellRules ?? Array.Empty<string>())
+                    foreach (var rule in Settings.ExcludeCellRules ?? new List<string>())
                     {
                         if (excludedCellsByRule.TryGetValue(rule, out var cells))
                         {
@@ -460,7 +460,7 @@ namespace FarmAnimalOwnershipProject
                     }
                     // Name term rules
 
-                    foreach (var term in Settings.ExcludeNameTerms ?? Array.Empty<string>())
+                    foreach (var term in Settings.ExcludeNameTerms ?? new List<string>())
                     {
 
                         int count = excludedNamesByRule

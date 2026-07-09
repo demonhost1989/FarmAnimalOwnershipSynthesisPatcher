@@ -21,7 +21,7 @@ namespace FarmAnimalOwnershipProject
         // The animal races we are looking for
         [SettingName("IncludeRaceTerms")]
         [Tooltip("Races to patch")]
-        public string[] IncludeRaceTerms { get; set; } =
+        public List<string> IncludeRaceTerms { get; set; } = new()
         {
             "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky"
         };
@@ -29,7 +29,7 @@ namespace FarmAnimalOwnershipProject
         // Animal names we want to exclude
         [SettingName("ExcludeNameTerms")]
         [Tooltip("Actor names to exclude from patching")]
-        public string[] ExcludeNameTerms { get; set; } =
+        public List<string> ExcludeNameTerms { get; set; } = new()
         {
             "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray"
         };
@@ -37,7 +37,7 @@ namespace FarmAnimalOwnershipProject
         // Plugin exclusion  (wildcards supported)
         [SettingName("ExcludePlugins")]
         [Tooltip("Plugins to exclude from patching")]
-        public string[] ExcludePlugins { get; set; } =
+        public List<string> ExcludePlugins { get; set; } = new()
         {
             "Vigilant.esm", "*FollowerFramework*", "*SkyrimUnderground*", "*HearthFire*", "cc*"
         };
@@ -45,7 +45,7 @@ namespace FarmAnimalOwnershipProject
         // Cell exclusion  (wildcards supported)
         [SettingName("ExcludeCellRules")]
         [Tooltip("Cells to exclude from patching")]
-        public string[] ExcludeCellRules { get; set; } =
+        public List<string> ExcludeCellRules { get; set; } = new()
         {
             "BYOH*", "cc*"
         };
