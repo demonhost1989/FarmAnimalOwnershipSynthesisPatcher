@@ -33,5 +33,6 @@ namespace FarmAnimalOwnershipProject
         [JsonProperty]
         public string ExcludeCellRules { get; set; } = "BYOH*";
     }
+
 }
 
