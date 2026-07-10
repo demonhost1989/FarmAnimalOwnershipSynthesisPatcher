@@ -1,4 +1,3 @@
-using FarmAnimalOwnershipProject;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Cache;
@@ -6,8 +5,6 @@ using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Newtonsoft.Json;
 using Noggog;
-using System.ComponentModel;
-using System.IO;
 
 
 namespace FarmAnimalOwnershipProject

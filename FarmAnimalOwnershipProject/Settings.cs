@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace FarmAnimalOwnershipProject
 {
@@ -27,16 +26,7 @@ namespace FarmAnimalOwnershipProject
     [JsonObject]
     public class Settings
     {
-        [DisplayName("Plugin Exclude List")]
-        [Description("List of plugins to exclude (semicolon separated)")]
-        [JsonProperty]
-        public string PluginExcludeList { get; set; } = string.Empty;
-
-        [DisplayName("Plugin Processing")]
-        [Description("Choose which plugins to process")]
-        [JsonProperty(ItemConverterType = typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public PluginFilter PluginFilter { get; set; } = PluginFilter.AllPlugins;
-
+        
         [DisplayName("Races to patch (partial matching)")]
         [Description("IncludeRaceTerms")]
         [JsonProperty]
