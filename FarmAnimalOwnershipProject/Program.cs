@@ -437,7 +437,7 @@ namespace FarmAnimalOwnership
 
                         foreach (var entry in byAnimal)
                         {
-                            ConsoleWriteLine($"          {entry.Count} {entry.Animal}   Is now owned by:  {entry.OwnerFaction}");
+                            ConsoleWriteLine($"          {entry.Count} {entry.Animal}   -> now owned by:  {entry.OwnerFaction}");
                         }
                     }
 
