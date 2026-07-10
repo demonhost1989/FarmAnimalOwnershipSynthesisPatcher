@@ -33,7 +33,7 @@ namespace FarmAnimalOwnershipProject
         ];
 
         // Plugin exclusion  (wildcards supported)
-        [SettingName("Plugins to exclude from patching (wildcard support with *)")]
+        [SettingName("Plugins to exclude from patching (wildcard support)")]
         [Tooltip("ExcludePlugins")]
         public List<string> ExcludePlugins { get; set; } =
         [
