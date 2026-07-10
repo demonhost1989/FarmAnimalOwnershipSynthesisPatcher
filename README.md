@@ -8,7 +8,7 @@ there are some fallsbacks to try and asign a less specific ownership. For exmapl
 the chicken at farm x with a faction connected to the farm, it will instead try matching the chicken to the faction of town y.
 
 The patcher is not flawless and it is likely to miss some, and maybe even patch some that shouldn't be. With that said, in my
-personal load order with 4000 mods the patcher found over 500 animals to asign ownership to. *Chefs kiss*
+personal load order with 4000 mods the patcher found over 100 animals to asign ownership to. *Chefs kiss*
 
 The patcher comes preconfigured based on my personal load order and the default settings are viewable in the settings.cs file.
 You can select races to patch (with partial matching), names to exclude (with partial matching), plugins to exclude (with wildcards),
