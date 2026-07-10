@@ -6,7 +6,7 @@ using Mutagen.Bethesda.Synthesis;
 using Noggog;
 
 
-namespace FarmAnimalOwnershipProject
+namespace FarmAnimalOwnership
 {
 
     // Classes //

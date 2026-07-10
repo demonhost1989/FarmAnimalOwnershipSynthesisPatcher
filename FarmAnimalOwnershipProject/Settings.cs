@@ -1,6 +1,6 @@
 using Mutagen.Bethesda.WPF.Reflection.Attributes;
 
-namespace FarmAnimalOwnershipProject
+namespace FarmAnimalOwnership
 {
     public class ConventionOverrideEntry
     {
@@ -25,7 +25,7 @@ namespace FarmAnimalOwnershipProject
         };
 
         // Animal names we want to exclude
-        [SettingName("Actor names to exclude from patching (partial matching")]
+        [SettingName("Actor names to exclude from patching (partial matching)")]
         [Tooltip("ExcludeNameTerms")]
         public List<string> ExcludeNameTerms { get; set; } = new()
         {
@@ -41,7 +41,7 @@ namespace FarmAnimalOwnershipProject
         };
 
         // Cell exclusion  (wildcards supported)
-        [SettingName("Cells to exclude from patching (wildcard support with *)")]
+        [SettingName("Cells to exclude from patching (wildcard support)")]
         [Tooltip("ExcludeCellRules")]
         public List<string> ExcludeCellRules { get; set; } = new()
         {
@@ -49,7 +49,7 @@ namespace FarmAnimalOwnershipProject
         };
 
         // LocType exclusion
-        [SettingName("Location Types to exclude")]
+        [SettingName("Location Types to exclude (exact matches)")]
         [Tooltip("ExcludeLocTypeRules")]
         public List<string> ExcludeLocTypeRules { get; set; } = new()
         {
@@ -107,7 +107,7 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "LeftHandMine", FactionEditorID = "TownLeftHandMineFaction" },
             new() { EditorID = "Stonehills", FactionEditorID = "TownStonehillsFaction" },
             new() { EditorID = "TelMithryn", FactionEditorID = "TelMithrynFaction" },
-            // Orc Stronholds
+            // Orc Strongholds
             new() { EditorID = "DushnikhYal", FactionEditorID = "TownDushnikhYalFaction" },
             new() { EditorID = "Largashbur", FactionEditorID = "TownLargashburFaction" },
             new() { EditorID = "MorKhazgur", FactionEditorID = "TownMorKhazgurFaction" },
