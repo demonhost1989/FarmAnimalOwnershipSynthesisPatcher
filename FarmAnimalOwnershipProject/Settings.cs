@@ -81,7 +81,6 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "AngisCampExterior", FactionEditorID = "WIGenericCrimeFaction" },
             new() { EditorID = "0WindhelmExtDwelling", FactionEditorID = "WindhelmSurWheelhouseFaction" },
             new() { EditorID = "WBPT", FactionEditorID = "SolitudeBluePalaceFaction" },
-            
             // Overrides for locations and cells that include town names
             // Capitals
             new() { EditorID = "Whiterun", FactionEditorID = "TownWhiterunFaction" },
