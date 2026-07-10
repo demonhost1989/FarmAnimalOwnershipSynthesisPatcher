@@ -29,11 +29,11 @@ namespace FarmAnimalOwnershipProject
         [Tooltip("ExcludeNameTerms")]
         public List<string> ExcludeNameTerms { get; set; } = new()
         {
-            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray"
+            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead",
         };
 
         // Plugin exclusion  (wildcards supported)
-        [SettingName("Plugins to exclude from patching (wildcard support with *")]
+        [SettingName("Plugins to exclude from patching (wildcard support with *)")]
         [Tooltip("ExcludePlugins")]
         public List<string> ExcludePlugins { get; set; } = new()
         {
@@ -41,18 +41,30 @@ namespace FarmAnimalOwnershipProject
         };
 
         // Cell exclusion  (wildcards supported)
-        [SettingName("Cells to exclude from patching (wildcard support with *")]
+        [SettingName("Cells to exclude from patching (wildcard support with *)")]
         [Tooltip("ExcludeCellRules")]
         public List<string> ExcludeCellRules { get; set; } = new()
         {
             "BYOH*", "cc*"
         };
 
-        // Manual cell/location -> faction overrides for cases automatic matching gets wrong or misses entirely
-        [SettingName("Convention overrides (Cell/Location EditorID -> Faction EditorID) !Exact Matches Only!")]
-        [Tooltip("Manual overrides for locations where automatic ownership matching fails or picks the wrong faction. EditorID can be either a CELL or a LOCATION EditorID.")]
+        // LocType exclusion
+        [SettingName("Location Types to exclude")]
+        [Tooltip("ExcludeLocTypeRules")]
+        public List<string> ExcludeLocTypeRules { get; set; } = new()
+        {
+            "LocTypeDungeon", "LocTypeAnimalDen", "LocTypeBanditCamp", "LocTypeDragonLair", "LocTypeDragonPriestLair",
+            "LocTypeDraugrCrypt", "LocTypeDwarvenAutomatons", "LocTypeFalmerHive", "LocTypeGiantCamp", "LocTypeHagravenNest",
+            "LocTypeSprigganGrove", "LocTypeVampireLair", "LocTypeWarlockLair", "LocTypeWerewolfLair", "LocTypeForswornCamp",
+            "LocSetCave", "LocSetDwarvenRuin", "LocSetNordicRuin", "LocSetCaveIce", "LocTypePlayerHouse",
+        };
+
+        // Manual cell/location -> faction overrides for matching
+        [SettingName("Convention overrides (Cell/Location EditorID -> Faction EditorID) Partial Matching")]
+        [Tooltip("Be carefull not to you too broad terms! EditorID can be either a CELL or a LOCATION EditorID.")]
         public List<ConventionOverrideEntry> ConventionOverrides { get; set; } = new()
         {
+            // Exact or particular matches
             new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },
             new() { EditorID = "DLC2SkaalVillageLocation", FactionEditorID = "DLC2SVGreathallFaction" },
             new() { EditorID = "BearsCaveMillLocation", FactionEditorID = "RG439BearsCaveMillFaction" },
@@ -60,15 +72,47 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "KynesgroveFarmsLocationTGCoKG", FactionEditorID = "KynesgroveRagnasAndHerleifsHouseFactionTGCoKG" },
             new() { EditorID = "KynesgroveGalasSteadLocationTGCoKG", FactionEditorID = "KynesgroveGalasHouseFactionTGCoKG" },
             new() { EditorID = "RoriksteadLemkilsFarmLocation", FactionEditorID = "RoriksteadLemkilsFarmFaction" },
-   //       new() { EditorID = "GoldenglowEstateLocation", FactionEditorID = "TownGoldenglowEstateFaction" },
-   //       new() { EditorID = "BlackBriarLodgeLocation", FactionEditorID = "MS03ChaletOwnershipFaction" },
-            new() { EditorID = "HonningbrewMeaderyExterior01", FactionEditorID = "HonningbrewMeaderyFaction" },
+            new() { EditorID = "HonningbrewMeadery", FactionEditorID = "HonningbrewMeaderyFaction" },
             new() { EditorID = "0BearQOrigin", FactionEditorID = "TownWindhelmFaction" },
             new() { EditorID = "DragonBridgeFourShieldsTavern", FactionEditorID = "DragonBridgeFourShieldsInnFaction" },
-            new() { EditorID = "NightgateInnExterior01", FactionEditorID = "NG_JobMerchantFaction" },
-            new() { EditorID = "DLC1DawnguardHQ01", FactionEditorID = "DLC1DawnguardFaction" },
-            new() { EditorID = "DLC1HunterWorldFort01", FactionEditorID = "DLC1DawnguardFaction" },
-            new() { EditorID = "DLC1HunterWorldFort02", FactionEditorID = "DLC1DawnguardFaction" },
+            new() { EditorID = "NightgateInn", FactionEditorID = "NG_JobMerchantFaction" },
+            new() { EditorID = "Dawnguard", FactionEditorID = "DLC1DawnguardFaction" },
+            new() { EditorID = "HunterWorld", FactionEditorID = "DLC1DawnguardFaction" },
+            new() { EditorID = "AngisCampExterior", FactionEditorID = "WIGenericCrimeFaction" },
+            new() { EditorID = "0WindhelmExtDwelling", FactionEditorID = "WindhelmSurWheelhouseFaction" },
+            new() { EditorID = "WBPT", FactionEditorID = "SolitudeBluePalaceFaction" },
+            
+            // Overrides for locations and cells that include town names
+            // Capitals
+            new() { EditorID = "Whiterun", FactionEditorID = "TownWhiterunFaction" },
+            new() { EditorID = "Solitude", FactionEditorID = "TownSolitudeFaction" },
+            new() { EditorID = "Riften", FactionEditorID = "TownRiftenFaction" },
+            new() { EditorID = "Windhelm", FactionEditorID = "TownWindhelmFaction" },
+            new() { EditorID = "Markarth", FactionEditorID = "TownMarkarthFaction" },
+            // Cities
+            new() { EditorID = "Falkreath", FactionEditorID = "TownFalkreathFaction" },
+            new() { EditorID = "Morthal", FactionEditorID = "TownMorthalFaction" },
+            new() { EditorID = "Dawnstar", FactionEditorID = "TownDawnstarFaction" },
+            new() { EditorID = "RavenRock", FactionEditorID = "DLC2CrimeRavenRockFaction" },
+            // Towns, villages and settlements
+            new() { EditorID = "DragonBridge", FactionEditorID = "TownDragonBridgeFaction" },
+            new() { EditorID = "Ivarstead", FactionEditorID = "TownIvarsteadFaction" },
+            new() { EditorID = "Karthwasten", FactionEditorID = "TownKarthwastenFaction" },
+            new() { EditorID = "Riverwood", FactionEditorID = "TownRiverwoodFaction" },
+            new() { EditorID = "Rorikstead", FactionEditorID = "TownRoriksteadFaction" },
+            new() { EditorID = "Kynesgrove", FactionEditorID = "TownKynesgroveFaction" },
+            new() { EditorID = "Nightgate", FactionEditorID = "NightgateInnFaction" },
+            new() { EditorID = "OldHroldan", FactionEditorID = "TownOldHroldanFaction" },
+            new() { EditorID = "DarkwaterCrossing", FactionEditorID = "TownDarkwaterCrossingFaction" },
+            new() { EditorID = "LeftHandMine", FactionEditorID = "TownLeftHandMineFaction" },
+            new() { EditorID = "Stonehills", FactionEditorID = "TownStonehillsFaction" },
+            new() { EditorID = "TelMithryn", FactionEditorID = "TelMithrynFaction" },
+            // Orc Stronholds
+            new() { EditorID = "DushnikhYal", FactionEditorID = "TownDushnikhYalFaction" },
+            new() { EditorID = "Largashbur", FactionEditorID = "TownLargashburFaction" },
+            new() { EditorID = "MorKhazgur", FactionEditorID = "TownMorKhazgurFaction" },
+            new() { EditorID = "Narzulbur", FactionEditorID = "TownNarzulburFaction" },
+
         };
     }
 }

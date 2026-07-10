@@ -154,6 +154,12 @@ namespace FarmAnimalOwnershipProject
                 ConsoleWriteLine($"WARNING: Duplicate Convention Override EditorIDs were ignored (first entry wins): {string.Join(", ", duplicateOverrideEdids)}");
             }
 
+            // Debug: show loaded convention overrides count
+            //if (ConventionOverrides.Count > 0)
+            //{
+            //      ConsoleWriteLine($"Loaded {ConventionOverrides.Count} convention overrides: {string.Join(", ", ConventionOverrides.Keys)}");
+            //}
+
             // Keep track of seen NPCs to avoid duplicates
             var seen = new HashSet<FormKey>();
 
@@ -162,6 +168,7 @@ namespace FarmAnimalOwnershipProject
             var skippedAnimalsByCell = new Dictionary<string, List<(string Animal, string Plugin, string Reason)>>(StringComparer.OrdinalIgnoreCase);
             var excludedAnimalsByPlugin = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var excludedCellsByRule = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var excludedLocTypesByRule = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var excludedNamesByRule = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var animalRaceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var patchedRaceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -171,6 +178,13 @@ namespace FarmAnimalOwnershipProject
             int missingFactionCount = 0;
             int patchedCount = 0;
             int alreadyOwnedCount = 0;
+            int excludedCount = 0;
+            // Distinct sets for summary (unique EditorIDs)
+            var unknownSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var missingFactionSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var patchedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var alreadyOwnedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var excludedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Start of main
             // loops through all placed NPCs in the load order
@@ -180,16 +194,14 @@ namespace FarmAnimalOwnershipProject
                 var containingCell = FindContainingCell(context, state.LinkCache);
                 string cellEdid;
 
+                // Use the actual EditorID when present. Cells without an EditorID are unknown.
                 if (containingCell?.EditorID != null)
                 {
-                    if (containingCell.EditorID.Contains("Wilderness", StringComparison.OrdinalIgnoreCase))
-                        cellEdid = "Wilderness";
-                    else
-                        cellEdid = containingCell.EditorID;
+                    cellEdid = containingCell.EditorID;
                 }
                 else
                 {
-                    cellEdid = "Wilderness"; // exterior cells with no EDID
+                    cellEdid = "Unknown cell"; // exterior cells with no EDID are treated as unknown
                 }
 
                 if (!seen.Add(placedNpc.FormKey))
@@ -203,7 +215,6 @@ namespace FarmAnimalOwnershipProject
                 var pluginName = placedNpc.FormKey.ModKey.FileName;
 
                 // Race check first — only farm-animal races are candidates at all.
-                // (Not a farm animal race: skip silently, don't count anywhere.)
                 var raceEdid = npc.Race.TryResolve(state.LinkCache)?.EditorID ?? "UnknownRace";
                 bool isFarmAnimalRace = Settings.IncludeRaceTerms != null &&
                     Settings.IncludeRaceTerms.Any(term => raceEdid.Contains(term, StringComparison.OrdinalIgnoreCase));
@@ -221,7 +232,14 @@ namespace FarmAnimalOwnershipProject
                 animalRaceCounts[displayRace] = raceCount + 1;
 
                 // (name-based exclusion is handled later so we record it there under the matched rule)
-
+                
+                // Exclude owned animals
+                if (!placedNpc.Owner.IsNull)
+                {
+                    alreadyOwnedCount++;
+                    alreadyOwnedSet.Add(animalLabel);
+                    continue;
+                }
                 // Wildcard-aware cell exclusion
                 bool cellExcluded = false;
                 if (Settings.ExcludeCellRules != null && Settings.ExcludeCellRules.Count > 0)
@@ -241,8 +259,47 @@ namespace FarmAnimalOwnershipProject
                     }
                 }
 
+                // Location type exclusion (match against location keywords like "LocTypeDungeon")
+                if (!cellExcluded && Settings.ExcludeLocTypeRules != null && Settings.ExcludeLocTypeRules.Count > 0)
+                {
+                    var loc = containingCell?.Location.TryResolve(state.LinkCache);
+                    var keywordEdids = loc?.Keywords?
+                        .Select(k => k.TryResolve(state.LinkCache)?.EditorID)
+                        .Where(e => e != null)
+                        .Select(e => e!)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    if (keywordEdids != null && keywordEdids.Count > 0)
+                    {
+                        foreach (var rule in Settings.ExcludeLocTypeRules)
+                        {
+                            // Convert wildcard pattern to regex
+                            string regexPattern = "^" +
+                                System.Text.RegularExpressions.Regex.Escape(rule)
+                                    .Replace("\\*", ".*")
+                                    .Replace("\\?", ".") +
+                                "$";
+
+                            if (keywordEdids.Any(k => System.Text.RegularExpressions.Regex.IsMatch(k, regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
+                            {
+                                cellExcluded = true;
+                                if (!excludedLocTypesByRule.TryGetValue(rule, out var list))
+                                    excludedLocTypesByRule[rule] = list = new List<string>();
+
+                                list.Add(animalLabel);
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (cellExcluded)
+                {
+                    excludedCount++;
+                    excludedSet.Add(animalLabel);
                     continue;
+                }
+
                 // Wildcard-aware plugin exclusion
                 if (IsPluginExcluded(pluginName))
                 {
@@ -253,12 +310,13 @@ namespace FarmAnimalOwnershipProject
                     }
 
                     list.Add(animalLabel);
+                    excludedCount++;
+                    excludedSet.Add(animalLabel);
 
                     continue;
                 }
 
-
-                // Exclude animals by name terms first (record them for the exclusion summary)
+                // Exclude animals by name terms
                 if (Settings.ExcludeNameTerms != null && Settings.ExcludeNameTerms.Count > 0 && Settings.ExcludeNameTerms.Any(term => animalLabel.Contains(term, StringComparison.OrdinalIgnoreCase)))
 
                 {
@@ -271,17 +329,12 @@ namespace FarmAnimalOwnershipProject
                     }
                     list.Add(animalLabel);
 
+                    excludedCount++;
+                    excludedSet.Add(animalLabel);
+
                     continue;
                 }
-
-
-                // Exclude owned animals
-                if (!placedNpc.Owner.IsNull)
-                {
-                    alreadyOwnedCount++;
-                    continue;
-                }
-
+                            
                 // Matching
                 var location = containingCell?.Location.TryResolve(state.LinkCache);
                 var (category, matched) = CategorizeLocation(location, state.LinkCache, containingCell);
@@ -293,12 +346,14 @@ namespace FarmAnimalOwnershipProject
                 {
                     combinedReason += "No suitable owner, ";         // Location has no obvious owner faction
                     missingFactionCount++;
+                    missingFactionSet.Add(animalLabel);
 
                     // Only unknown if BOTH category and matched are unknown
-                    if (category == LocationCategory.Unknown && matched == null)
+                    if (category == LocationCategory.Unknown)
                     {
                         combinedReason += "No suitable location";
                         unknownCount++;
+                        unknownSet.Add(animalLabel);
                     }
                 }
 
@@ -315,6 +370,7 @@ namespace FarmAnimalOwnershipProject
                 patchNpc.Owner.SetTo(townFaction);
                 patchNpc.FactionRank = 0;
                 patchedCount++;
+                patchedSet.Add(animalLabel);
 
                 // track patched race counts
                 patchedRaceCounts.TryGetValue(displayRace, out var patchedRaceCount);
@@ -333,17 +389,14 @@ namespace FarmAnimalOwnershipProject
 
                 // Total patched across all cells
                 var totalPatched = patchedAnimalsByCell.Values.SelectMany(v => v).Count();
-                _lastWasDivider = false;
-                PrintDivider();
-
-                // PATCHED BY CELL //
+                
+                // PATCHED BY CELL
                 // Printout for patched animals by cell
                 _lastWasDivider = false;
                 PrintShortDivider();
                 ConsoleWriteLine("PATCHED BY CELL".PadLeft(36));
                 ConsoleWriteLine($"Total patched: {totalPatched}".PadLeft(37));
                 PrintShortDivider();
-
 
                 foreach (var kvp in patchedAnimalsByCell.OrderByDescending(k => k.Value.Count))
                 {
@@ -393,7 +446,7 @@ namespace FarmAnimalOwnershipProject
                 // Total skipped across all cells
                 var totalSkipped = skippedAnimalsByCell.Values.SelectMany(v => v).Count();
 
-                // SKIPPED BY CELL //
+                // SKIPPED BY CELL
                 // Printout for skipped animals by cell
                 _lastWasDivider = false;
                 PrintShortDivider();
@@ -442,7 +495,7 @@ namespace FarmAnimalOwnershipProject
                     PrintDivider();
                 }
 
-                // EXCLUSION SUMMARY //
+                // EXCLUSION SUMMARY
                 // Summary printout
                 _lastWasDivider = false;
                 PrintShortDivider();
@@ -452,38 +505,47 @@ namespace FarmAnimalOwnershipProject
                 // Build combined list
                 var combined = new List<(string Rule, int Count, string Type)>();
 
-                // Plugin rules (wildcard patterns) - count distinct excluded animals for matching plugins
+                // Plugin rules (wildcard patterns) - count excluded animal INSTANCES for matching plugins
                 foreach (var rule in Settings.ExcludePlugins ?? new List<string>())
                 {
                     int count = excludedAnimalsByPlugin
                         .Where(kv => RuleMatchesPlugin(rule, kv.Key))
                         .SelectMany(kv => kv.Value)
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
                         .Count();
 
                     if (count > 0)
                         combined.Add((Rule: rule, Count: count, Type: "plugin"));
                 }
 
-                // Cell rules
+                // Cell rules - count excluded animal INSTANCES per matching cell rule
                 foreach (var rule in Settings.ExcludeCellRules ?? new List<string>())
                 {
                     if (excludedCellsByRule.TryGetValue(rule, out var cells))
                     {
-                        int count = cells.Distinct().Count();
+                        int count = cells.Count;
                         if (count > 0)
                             combined.Add((Rule: rule, Count: count, Type: "cell"));
+                    }
+                }
+
+                // Location type rules - count excluded animal INSTANCES per matching loctype rule
+                foreach (var rule in Settings.ExcludeLocTypeRules ?? new List<string>())
+                {
+                    if (excludedLocTypesByRule.TryGetValue(rule, out var names))
+                    {
+                        int count = names.Count;
+                        if (count > 0)
+                            combined.Add((Rule: rule, Count: count, Type: "loctype"));
                     }
                 }
 
                 // Name term rules
                 foreach (var term in Settings.ExcludeNameTerms ?? new List<string>())
                 {
-                    // Count distinct animal names recorded under any rule/key that matches this term
+                    // Count excluded animal INSTANCES recorded under any rule/key that matches this term
                     int count = excludedNamesByRule
                         .Where(kvp => kvp.Key.Contains(term, StringComparison.OrdinalIgnoreCase))
                         .SelectMany(kvp => kvp.Value)
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
                         .Count();
 
                     if (count > 0)
@@ -508,7 +570,8 @@ namespace FarmAnimalOwnershipProject
                                 ("Farm animals have been asigned owners", patchedCount, true),
                                 ("Farm animals were already owned", alreadyOwnedCount, false),
                                 ("Farm animals had no suitable owner", missingFactionCount, false),
-                                ("Farm animals were in an unsuitable location", unknownCount, false)
+                                ("Farm animals were in an unsuitable location", unknownCount, false),
+                                ("Farm animals were excluded by rules", excludedCount, false)
                             };
 
                 foreach (var line in summaryLines.OrderByDescending(l => l.Count))
@@ -591,19 +654,42 @@ namespace FarmAnimalOwnershipProject
         // so it's now populated from Settings.ConventionOverrides at the start of each run (see RunPatch).
         private static Dictionary<string, string> ConventionOverrides = new(StringComparer.OrdinalIgnoreCase);
 
-        // Dictionary for hold capital prefixes to faction mappings
-        private static readonly Dictionary<string, string> HoldCapitalPrefixes = new(StringComparer.OrdinalIgnoreCase)
+        // Try to find a convention override for a given EditorID using exact or partial matching.
+        // Partial matching will accept keys that are substrings of the provided EditorID or vice versa.
+        private static bool TryFindConventionOverride(string editorId, out string factionEdid)
         {
-            ["Whiterun"] = "TownWhiterunFaction",
-            ["Solitude"] = "TownSolitudeFaction",
-            ["Riften"] = "TownRiftenFaction",
-            ["Windhelm"] = "TownWindhelmFaction",
-            ["Markarth"] = "TownMarkarthFaction",
-            ["Falkreath"] = "TownFalkreathFaction",
-            ["Morthal"] = "TownMorthalFaction",
-            ["Dawnstar"] = "TownDawnstarFaction",
-            ["Winterhold"] = "TownWinterholdFaction"
-        };
+            factionEdid = string.Empty;
+            if (string.IsNullOrWhiteSpace(editorId))
+                return false;
+
+            // Exact match first
+            if (ConventionOverrides.TryGetValue(editorId, out var direct))
+            {
+                factionEdid = direct ?? string.Empty;
+                return true;
+            }
+
+            // Key contained in editorId (partial match)
+            var key = ConventionOverrides.Keys.FirstOrDefault(k => editorId.IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (key != null)
+            {
+                factionEdid = ConventionOverrides[key] ?? string.Empty;
+                return true;
+            }
+
+            // editorId contained in key (other direction)
+            key = ConventionOverrides.Keys.FirstOrDefault(k => k.IndexOf(editorId, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (key != null)
+            {
+                factionEdid = ConventionOverrides[key] ?? string.Empty;
+                return true;
+            }
+
+            return false;
+        }
+
+        // Dictionary for hold capital prefixes to faction mappings
+
 
         // Faction helper function
         private static IFactionGetter? TryGetTownFaction(
@@ -614,10 +700,14 @@ namespace FarmAnimalOwnershipProject
             // Convention overrides mapping for cells to faction
             if (cell?.EditorID != null)
             {
-                if (ConventionOverrides.TryGetValue(cell.EditorID, out var cellOverrideEdid))
+                if (TryFindConventionOverride(cell.EditorID, out var cellOverrideEdid))
                 {
+             //       ConsoleWriteLine($"Convention override found for cell '{cell.EditorID}' -> '{cellOverrideEdid}'");
                     if (factionsByEdid.TryGetValue(cellOverrideEdid, out var cellOverrideFaction))
+                    {
+             //           ConsoleWriteLine($"  Resolved override faction: {cellOverrideFaction.EditorID}");
                         return cellOverrideFaction;
+                    }
 
                     // Fallback: try to find a faction whose EditorID contains the mapped value (handles prefixes/suffixes)
                     var fallbackCellFaction = factionsByEdid.Values
@@ -625,13 +715,16 @@ namespace FarmAnimalOwnershipProject
                             string.Equals(f.EditorID, cellOverrideEdid, StringComparison.OrdinalIgnoreCase) ||
                             f.EditorID.IndexOf(cellOverrideEdid, StringComparison.OrdinalIgnoreCase) >= 0));
                     if (fallbackCellFaction != null)
+                    {
+            //            ConsoleWriteLine($"  Found fallback faction for override '{cellOverrideEdid}': {fallbackCellFaction.EditorID}");
                         return fallbackCellFaction;
+                    }
                 }
 
                 // Also try stripped/root variants of the cell EditorID (handles numeric suffixes or embedded terms)
                 foreach (var root in GetRootsFromEditorId(cell.EditorID))
                 {
-                    if (ConventionOverrides.TryGetValue(root, out var roEdid) && factionsByEdid.TryGetValue(roEdid, out var roFaction))
+                    if (TryFindConventionOverride(root, out var roEdid) && factionsByEdid.TryGetValue(roEdid, out var roFaction))
                         return roFaction;
                 }
             }
@@ -639,10 +732,14 @@ namespace FarmAnimalOwnershipProject
             // Convention override mapping for location to faction
             if (location?.EditorID != null)
             {
-                if (ConventionOverrides.TryGetValue(location.EditorID, out var overrideFactionEdid))
+                if (TryFindConventionOverride(location.EditorID, out var overrideFactionEdid))
                 {
+            //       ConsoleWriteLine($"Convention override found for location '{location.EditorID}' -> '{overrideFactionEdid}'");
                     if (factionsByEdid.TryGetValue(overrideFactionEdid, out var overrideFaction))
+                    {
+            //            ConsoleWriteLine($"  Resolved override faction: {overrideFaction.EditorID}");
                         return overrideFaction;
+                    }
 
                     // Fallback: try to find a faction whose EditorID contains the mapped value
                     var fallbackLocFaction = factionsByEdid.Values
@@ -650,13 +747,16 @@ namespace FarmAnimalOwnershipProject
                             string.Equals(f.EditorID, overrideFactionEdid, StringComparison.OrdinalIgnoreCase) ||
                             f.EditorID.IndexOf(overrideFactionEdid, StringComparison.OrdinalIgnoreCase) >= 0));
                     if (fallbackLocFaction != null)
+                    {
+            //            ConsoleWriteLine($"  Found fallback faction for override '{overrideFactionEdid}': {fallbackLocFaction.EditorID}");
                         return fallbackLocFaction;
+                    }
                 }
 
                 // Also try stripped/root variants of the location EditorID
                 foreach (var root in GetRootsFromEditorId(location.EditorID))
                 {
-                    if (ConventionOverrides.TryGetValue(root, out var roEdid) && factionsByEdid.TryGetValue(roEdid, out var roFaction))
+                    if (TryFindConventionOverride(root, out var roEdid) && factionsByEdid.TryGetValue(roEdid, out var roFaction))
                         return roFaction;
                 }
             }
@@ -755,21 +855,13 @@ namespace FarmAnimalOwnershipProject
                         && f.EditorID.IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0);
                 if (fallbackMill != null)
                     return fallbackMill;
-            }
+            
 
-            // Cell-based hold-capital prefix detection
-            if (cell?.EditorID != null)
-            {
-                foreach (var kvp in HoldCapitalPrefixes)
-                {
-                    if (cell.EditorID.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (factionsByEdid.TryGetValue(kvp.Value, out var faction))
-                            return faction;
-                    }
-                }
+            
+                    
+                
                 // Additional fallback: try matching normalized roots from the cell EditorID
-                foreach (var root in GetRootsFromEditorId(cell.EditorID).Distinct(StringComparer.OrdinalIgnoreCase))
+                foreach (var root in GetRootsFromEditorId(cell?.EditorID).Distinct(StringComparer.OrdinalIgnoreCase))
                 {
                     var match = factionsByEdid.Values
                         .FirstOrDefault(f => f.EditorID != null
@@ -855,22 +947,7 @@ namespace FarmAnimalOwnershipProject
                 if (cell.EditorID.Contains("village", StringComparison.OrdinalIgnoreCase) || cell.EditorID.Contains("settlement", StringComparison.OrdinalIgnoreCase) || cell.EditorID.Contains("town", StringComparison.OrdinalIgnoreCase) || cell.EditorID.Contains("city", StringComparison.OrdinalIgnoreCase))
                     return (LocationCategory.Town, location);
 
-                // Hold-capital prefix detection for city districts and misc locations
-                foreach (var kvp in HoldCapitalPrefixes)
-                {
-                    if (cell.EditorID.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
-                        return (LocationCategory.Town, location);
-                }
-            }
 
-            // Location EditorID fallback
-            if (location?.EditorID != null)
-            {
-                foreach (var kvp in HoldCapitalPrefixes)
-                {
-                    if (location.EditorID.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
-                        return (LocationCategory.Town, location);
-                }
             }
 
             return (LocationCategory.Unknown, null);
