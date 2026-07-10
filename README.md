@@ -13,7 +13,7 @@ personal load order with 4000 mods the patcher found over 500 animals to asign o
 The patcher comes preconfigured based on my personal load order and the default settings are viewable in the settings.cs file.
 You can select races to patch (with partial matching), names to exclude (with partial matching), plugins to exclude (with wildcards),
 cells to exclude (with wildcards), location types to exclude (exact matching), then there is a override section to
-force a location/cell to use a particular faction for it's ownership patching.
+force a location/cell to use a particular faction for its ownership patching.
 
 A couple of notes on the printout report:
 In the General Summary there is typically a big overlap between no suitable owner and an unsuitable location
