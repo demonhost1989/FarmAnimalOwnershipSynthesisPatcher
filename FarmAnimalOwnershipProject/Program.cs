@@ -3,6 +3,10 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Cache;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
+using Synthesis.Bethesda;
+using Mutagen.Bethesda.Serialization;
+using Mutagen.Bethesda.Serialization.Newtonsoft;
+using Mutagen.Bethesda.Json;
 using Noggog;
 
 
@@ -154,11 +158,11 @@ namespace FarmAnimalOwnershipProject
                 ConsoleWriteLine($"WARNING: Duplicate Convention Override EditorIDs were ignored (first entry wins): {string.Join(", ", duplicateOverrideEdids)}");
             }
 
-            // Debug: show loaded convention overrides count
-            //if (ConventionOverrides.Count > 0)
-            //{
-            //      ConsoleWriteLine($"Loaded {ConventionOverrides.Count} convention overrides: {string.Join(", ", ConventionOverrides.Keys)}");
-            //}
+            //  Debug: show loaded convention overrides count
+            if (ConventionOverrides.Count > 0)
+            {
+                  ConsoleWriteLine($"Loaded {ConventionOverrides.Count} convention overrides: {string.Join(", ", ConventionOverrides.Keys)}");
+            }
 
             // Keep track of seen NPCs to avoid duplicates
             var seen = new HashSet<FormKey>();
@@ -589,9 +593,8 @@ namespace FarmAnimalOwnershipProject
 
                 PrintDivider();
                 ConsoleWriteLine("Patching is complete: Scroll up to read a detailed report on what was patched, skipped, and excluded.");
-                ConsoleWriteLine("A couple of notes on the report: In the General Summary there is typically a massive overlap between" +
-                                 " no suitable owner and an unsuitable location since they can both be true. The Exclusion Summary will" +
-                                 " only display the NPCs who otherwise matched all requirements");
+                ConsoleWriteLine("A couple of notes on the report: In the General Summary there is typically a massive overlap between no suitable owner and an unsuitable locationsince they can both be true.");
+                ConsoleWriteLine("The Exclusion Summary will only display the NPCs who otherwise matched all requirements");
                 PrintDivider();
 
                 return;
@@ -687,9 +690,6 @@ namespace FarmAnimalOwnershipProject
 
             return false;
         }
-
-        // Dictionary for hold capital prefixes to faction mappings
-
 
         // Faction helper function
         private static IFactionGetter? TryGetTownFaction(

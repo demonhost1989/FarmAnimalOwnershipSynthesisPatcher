@@ -21,7 +21,7 @@ namespace FarmAnimalOwnershipProject
         [Tooltip("IncludeRaceTerms")]
         public List<string> IncludeRaceTerms { get; set; } =
         [
-            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky"
+            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky",
         ];
 
         // Animal names we want to exclude
@@ -37,7 +37,7 @@ namespace FarmAnimalOwnershipProject
         [Tooltip("ExcludePlugins")]
         public List<string> ExcludePlugins { get; set; } =
         [
-            "Vigilant.esm", "*FollowerFramework*", "*SkyrimUnderground*", "*HearthFire*", "cc*", "Glenmoril.esm"
+            "Vigilant.esm", "*FollowerFramework*", "*SkyrimUnderground*", "*HearthFire*", "cc*", "Glenmoril.esm",
         ];
 
         // Cell exclusion  (wildcards supported)
@@ -45,7 +45,7 @@ namespace FarmAnimalOwnershipProject
         [Tooltip("ExcludeCellRules")]
         public List<string> ExcludeCellRules { get; set; } =
         [
-            "BYOH*", "cc*"
+            "BYOH*", "cc*",
         ];
 
         // LocType exclusion
