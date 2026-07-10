@@ -1,6 +1,6 @@
 using Mutagen.Bethesda.WPF.Reflection.Attributes;
 
-namespace FarmAnimalOwnership
+namespace FarmAnimalOwnershipProject
 {
     public class ConventionOverrideEntry
     {
@@ -19,51 +19,51 @@ namespace FarmAnimalOwnership
         // The animal races we are looking for
         [SettingName("Races to patch (partial matching)")]
         [Tooltip("IncludeRaceTerms")]
-        public List<string> IncludeRaceTerms { get; set; } = new()
-        {
+        public List<string> IncludeRaceTerms { get; set; } =
+        [
             "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky"
-        };
+        ];
 
         // Animal names we want to exclude
         [SettingName("Actor names to exclude from patching (partial matching)")]
         [Tooltip("ExcludeNameTerms")]
-        public List<string> ExcludeNameTerms { get; set; } = new()
-        {
+        public List<string> ExcludeNameTerms { get; set; } =
+        [
             "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead",
-        };
+        ];
 
         // Plugin exclusion  (wildcards supported)
         [SettingName("Plugins to exclude from patching (wildcard support with *)")]
         [Tooltip("ExcludePlugins")]
-        public List<string> ExcludePlugins { get; set; } = new()
-        {
+        public List<string> ExcludePlugins { get; set; } =
+        [
             "Vigilant.esm", "*FollowerFramework*", "*SkyrimUnderground*", "*HearthFire*", "cc*", "Glenmoril.esm"
-        };
+        ];
 
         // Cell exclusion  (wildcards supported)
         [SettingName("Cells to exclude from patching (wildcard support)")]
         [Tooltip("ExcludeCellRules")]
-        public List<string> ExcludeCellRules { get; set; } = new()
-        {
+        public List<string> ExcludeCellRules { get; set; } =
+        [
             "BYOH*", "cc*"
-        };
+        ];
 
         // LocType exclusion
         [SettingName("Location Types to exclude (exact matches)")]
         [Tooltip("ExcludeLocTypeRules")]
-        public List<string> ExcludeLocTypeRules { get; set; } = new()
-        {
+        public List<string> ExcludeLocTypeRules { get; set; } =
+        [
             "LocTypeDungeon", "LocTypeAnimalDen", "LocTypeBanditCamp", "LocTypeDragonLair", "LocTypeDragonPriestLair",
             "LocTypeDraugrCrypt", "LocTypeDwarvenAutomatons", "LocTypeFalmerHive", "LocTypeGiantCamp", "LocTypeHagravenNest",
             "LocTypeSprigganGrove", "LocTypeVampireLair", "LocTypeWarlockLair", "LocTypeWerewolfLair", "LocTypeForswornCamp",
             "LocSetCave", "LocSetDwarvenRuin", "LocSetNordicRuin", "LocSetCaveIce", "LocTypePlayerHouse",
-        };
+        ];
 
         // Manual cell/location -> faction overrides for matching
         [SettingName("Convention overrides (Cell/Location EditorID -> Faction EditorID) Partial Matching")]
         [Tooltip("Be carefull not to you too broad terms! EditorID can be either a CELL or a LOCATION EditorID.")]
-        public List<ConventionOverrideEntry> ConventionOverrides { get; set; } = new()
-        {
+        public List<ConventionOverrideEntry> ConventionOverrides { get; set; } =
+        [
             // Exact or particular matches
             new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },
             new() { EditorID = "DLC2SkaalVillageLocation", FactionEditorID = "DLC2SVGreathallFaction" },
@@ -113,6 +113,6 @@ namespace FarmAnimalOwnership
             new() { EditorID = "MorKhazgur", FactionEditorID = "TownMorKhazgurFaction" },
             new() { EditorID = "Narzulbur", FactionEditorID = "TownNarzulburFaction" },
 
-        };
+        ];
     }
 }

@@ -1,3 +1,4 @@
+using FarmAnimalOwnershipProject;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Cache;
@@ -6,7 +7,7 @@ using Mutagen.Bethesda.Synthesis;
 using Noggog;
 
 
-namespace FarmAnimalOwnership
+namespace FarmAnimalOwnershipProject
 {
 
     // Classes //
@@ -42,7 +43,7 @@ namespace FarmAnimalOwnership
         }
 
         // Runtime settings instance (defaults from Settings class)
-        private static readonly Settings Settings = new Settings();
+        private static readonly Settings Settings = new();
 
         // Helper function to add skipped animals to the dictionary
         private static void AddSkip(
@@ -56,7 +57,7 @@ namespace FarmAnimalOwnership
 
             if (!dict.TryGetValue(key, out var list))
             {
-                list = new List<(string Animal, string Plugin, string Reason)>();
+                list = [];
                 dict[key] = list;
             }
 
@@ -137,7 +138,7 @@ namespace FarmAnimalOwnership
             // Populate ConventionOverrides from Settings (user-editable list -> lookup dictionary)
             ConventionOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var duplicateOverrideEdids = new List<string>();
-            foreach (var entry in Settings.ConventionOverrides ?? new List<ConventionOverrideEntry>())
+            foreach (var entry in Settings.ConventionOverrides ?? [])
             {
                 if (string.IsNullOrWhiteSpace(entry.EditorID) || string.IsNullOrWhiteSpace(entry.FactionEditorID))
                     continue;
@@ -250,7 +251,7 @@ namespace FarmAnimalOwnership
                         {
                             cellExcluded = true;
                             if (!excludedCellsByRule.TryGetValue(rule, out var cellList))
-                                excludedCellsByRule[rule] = cellList = new List<string>();
+                                excludedCellsByRule[rule] = cellList = [];
 
                             // Record the animal name that triggered this cell-rule exclusion so we can count animals per rule
                             cellList.Add(animalLabel);
@@ -284,7 +285,7 @@ namespace FarmAnimalOwnership
                             {
                                 cellExcluded = true;
                                 if (!excludedLocTypesByRule.TryGetValue(rule, out var list))
-                                    excludedLocTypesByRule[rule] = list = new List<string>();
+                                    excludedLocTypesByRule[rule] = list = [];
 
                                 list.Add(animalLabel);
                                 break;
@@ -305,7 +306,7 @@ namespace FarmAnimalOwnership
                 {
                     if (!excludedAnimalsByPlugin.TryGetValue(pluginName, out var list))
                     {
-                        list = new List<string>();
+                        list = [];
                         excludedAnimalsByPlugin[pluginName] = list;
                     }
 
@@ -324,7 +325,7 @@ namespace FarmAnimalOwnership
                     var matchedTerm = Settings.ExcludeNameTerms.First(term => animalLabel.Contains(term, StringComparison.OrdinalIgnoreCase));
                     if (!excludedNamesByRule.TryGetValue(matchedTerm, out var list))
                     {
-                        list = new List<string>();
+                        list = [];
                         excludedNamesByRule[matchedTerm] = list;
                     }
                     list.Add(animalLabel);
@@ -378,7 +379,7 @@ namespace FarmAnimalOwnership
 
                 if (!patchedAnimalsByCell.TryGetValue(cellEdid, out var patchedList))
                 {
-                    patchedList = new List<(string Animal, string Plugin, string? OwnerFaction)>();
+                    patchedList = [];
                     patchedAnimalsByCell[cellEdid] = patchedList;
                 }
 
@@ -506,7 +507,7 @@ namespace FarmAnimalOwnership
                 var combined = new List<(string Rule, int Count, string Type)>();
 
                 // Plugin rules (wildcard patterns) - count excluded animal INSTANCES for matching plugins
-                foreach (var rule in Settings.ExcludePlugins ?? new List<string>())
+                foreach (var rule in Settings.ExcludePlugins ?? [])
                 {
                     int count = excludedAnimalsByPlugin
                         .Where(kv => RuleMatchesPlugin(rule, kv.Key))
@@ -518,7 +519,7 @@ namespace FarmAnimalOwnership
                 }
 
                 // Cell rules - count excluded animal INSTANCES per matching cell rule
-                foreach (var rule in Settings.ExcludeCellRules ?? new List<string>())
+                foreach (var rule in Settings.ExcludeCellRules ?? [])
                 {
                     if (excludedCellsByRule.TryGetValue(rule, out var cells))
                     {
@@ -529,7 +530,7 @@ namespace FarmAnimalOwnership
                 }
 
                 // Location type rules - count excluded animal INSTANCES per matching loctype rule
-                foreach (var rule in Settings.ExcludeLocTypeRules ?? new List<string>())
+                foreach (var rule in Settings.ExcludeLocTypeRules ?? [])
                 {
                     if (excludedLocTypesByRule.TryGetValue(rule, out var names))
                     {
@@ -540,7 +541,7 @@ namespace FarmAnimalOwnership
                 }
 
                 // Name term rules
-                foreach (var term in Settings.ExcludeNameTerms ?? new List<string>())
+                foreach (var term in Settings.ExcludeNameTerms ?? [])
                 {
                     // Count excluded animal INSTANCES recorded under any rule/key that matches this term
                     int count = excludedNamesByRule
@@ -574,11 +575,11 @@ namespace FarmAnimalOwnership
                                 ("Farm animals were excluded by rules", excludedCount, false)
                             };
 
-                foreach (var line in summaryLines.OrderByDescending(l => l.Count))
+                foreach (var (Label, Count, ShowRaces) in summaryLines.OrderByDescending(l => l.Count))
                 {
-                    ConsoleWriteLine($"{line.Count} {line.Label}");
+                    ConsoleWriteLine($"{Count} {Label}");
 
-                    if (line.ShowRaces)
+                    if (ShowRaces)
                     {
                         foreach (var kvp in patchedRaceCounts.OrderByDescending(k => k.Value))
                         {
@@ -670,7 +671,7 @@ namespace FarmAnimalOwnership
             }
 
             // Key contained in editorId (partial match)
-            var key = ConventionOverrides.Keys.FirstOrDefault(k => editorId.IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0);
+            var key = ConventionOverrides.Keys.FirstOrDefault(k => editorId.Contains(k, StringComparison.OrdinalIgnoreCase));
             if (key != null)
             {
                 factionEdid = ConventionOverrides[key] ?? string.Empty;
@@ -678,7 +679,7 @@ namespace FarmAnimalOwnership
             }
 
             // editorId contained in key (other direction)
-            key = ConventionOverrides.Keys.FirstOrDefault(k => k.IndexOf(editorId, StringComparison.OrdinalIgnoreCase) >= 0);
+            key = ConventionOverrides.Keys.FirstOrDefault(k => k.Contains(editorId, StringComparison.OrdinalIgnoreCase));
             if (key != null)
             {
                 factionEdid = ConventionOverrides[key] ?? string.Empty;
@@ -713,7 +714,7 @@ namespace FarmAnimalOwnership
                     var fallbackCellFaction = factionsByEdid.Values
                         .FirstOrDefault(f => f.EditorID != null && (
                             string.Equals(f.EditorID, cellOverrideEdid, StringComparison.OrdinalIgnoreCase) ||
-                            f.EditorID.IndexOf(cellOverrideEdid, StringComparison.OrdinalIgnoreCase) >= 0));
+                            f.EditorID.Contains(cellOverrideEdid, StringComparison.OrdinalIgnoreCase)));
                     if (fallbackCellFaction != null)
                     {
             //            ConsoleWriteLine($"  Found fallback faction for override '{cellOverrideEdid}': {fallbackCellFaction.EditorID}");
@@ -745,7 +746,7 @@ namespace FarmAnimalOwnership
                     var fallbackLocFaction = factionsByEdid.Values
                         .FirstOrDefault(f => f.EditorID != null && (
                             string.Equals(f.EditorID, overrideFactionEdid, StringComparison.OrdinalIgnoreCase) ||
-                            f.EditorID.IndexOf(overrideFactionEdid, StringComparison.OrdinalIgnoreCase) >= 0));
+                            f.EditorID.Contains(overrideFactionEdid, StringComparison.OrdinalIgnoreCase)));
                     if (fallbackLocFaction != null)
                     {
             //            ConsoleWriteLine($"  Found fallback faction for override '{overrideFactionEdid}': {fallbackLocFaction.EditorID}");
@@ -778,7 +779,7 @@ namespace FarmAnimalOwnership
                 var fallbackTown = factionsByEdid.Values
                     .FirstOrDefault(f => f.EditorID != null
                         && f.EditorID.EndsWith("Faction", StringComparison.OrdinalIgnoreCase)
-                        && f.EditorID.IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0);
+                        && f.EditorID.Contains(baseName, StringComparison.OrdinalIgnoreCase));
                 if (fallbackTown != null)
                     return fallbackTown;
 
@@ -802,7 +803,7 @@ namespace FarmAnimalOwnership
                     var match = factionsByEdid.Values
                         .FirstOrDefault(f => f.EditorID != null
                             && f.EditorID.EndsWith("Faction", StringComparison.OrdinalIgnoreCase)
-                            && f.EditorID.IndexOf(root, StringComparison.OrdinalIgnoreCase) >= 0);
+                            && f.EditorID.Contains(root, StringComparison.OrdinalIgnoreCase));
                     if (match != null)
                         return match;
                 }
@@ -827,7 +828,7 @@ namespace FarmAnimalOwnership
                 var fallbackFarm = factionsByEdid.Values
                     .FirstOrDefault(f => f.EditorID != null
                         && f.EditorID.EndsWith("Faction", StringComparison.OrdinalIgnoreCase)
-                        && f.EditorID.IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0);
+                        && f.EditorID.Contains(baseName, StringComparison.OrdinalIgnoreCase));
                 if (fallbackFarm != null)
                     return fallbackFarm;
 
@@ -852,7 +853,7 @@ namespace FarmAnimalOwnership
                 var fallbackMill = factionsByEdid.Values
                     .FirstOrDefault(f => f.EditorID != null
                         && f.EditorID.EndsWith("Faction", StringComparison.OrdinalIgnoreCase)
-                        && f.EditorID.IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0);
+                        && f.EditorID.Contains(baseName, StringComparison.OrdinalIgnoreCase));
                 if (fallbackMill != null)
                     return fallbackMill;
             
@@ -866,7 +867,7 @@ namespace FarmAnimalOwnership
                     var match = factionsByEdid.Values
                         .FirstOrDefault(f => f.EditorID != null
                             && f.EditorID.EndsWith("Faction", StringComparison.OrdinalIgnoreCase)
-                            && f.EditorID.IndexOf(root, StringComparison.OrdinalIgnoreCase) >= 0);
+                            && f.EditorID.Contains(root, StringComparison.OrdinalIgnoreCase));
                     if (match != null)
                         return match;
                 }
