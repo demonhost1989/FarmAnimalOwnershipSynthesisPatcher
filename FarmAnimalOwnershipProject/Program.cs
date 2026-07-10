@@ -1,13 +1,8 @@
-using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Cache;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
-using Synthesis.Bethesda;
-using Mutagen.Bethesda.Serialization;
-using Mutagen.Bethesda.Serialization.Newtonsoft;
-using Mutagen.Bethesda.Json;
-using Noggog;
+using Mutagen.Bethesda;
 
 
 namespace FarmAnimalOwnershipProject
@@ -159,10 +154,10 @@ namespace FarmAnimalOwnershipProject
             }
 
             //  Debug: show loaded convention overrides count
-            if (ConventionOverrides.Count > 0)
-            {
-                  ConsoleWriteLine($"Loaded {ConventionOverrides.Count} convention overrides: {string.Join(", ", ConventionOverrides.Keys)}");
-            }
+            //if (ConventionOverrides.Count > 0)
+            //{
+            //      ConsoleWriteLine($"Loaded {ConventionOverrides.Count} convention overrides: {string.Join(", ", ConventionOverrides.Keys)}");
+            //}
 
             // Keep track of seen NPCs to avoid duplicates
             var seen = new HashSet<FormKey>();
