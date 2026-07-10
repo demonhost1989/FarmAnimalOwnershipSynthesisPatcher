@@ -116,15 +116,8 @@ namespace FarmAnimalOwnershipProject
             Town, Farm, Unknown, Mill, Wilderness, Stable
         }
 
-        // Generic helper preserving the previous API used elsewhere in the project: Settings.FromJson<Settings>(path)
-        public static T FromJson<T>(string path) where T : new()
-        {
-            if (string.IsNullOrEmpty(path) || !File.Exists(path))
-                return new T();
-            var json = File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<T>(json) ?? new T();
-        }
-
+ 
+        
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
 
@@ -161,17 +154,17 @@ namespace FarmAnimalOwnershipProject
                 }
             }
 
-            Settings config;
+            Settings settings;
             try
             {
-                config = JsonConvert.DeserializeObject<Settings>(configContent!) ?? LazySettings.Value;
+                settings = JsonConvert.DeserializeObject<Settings>(configContent!) ?? LazySettings.Value;
             }
             catch (JsonException)
             {
-                ConsoleWriteLine("WARNING: Could not parse config JSON; using defaults.");
-                config = LazySettings.Value;
+                ConsoleWriteLine("WARNING: Could not parse Settings File; using defaults.");
+                settings = LazySettings.Value;
             }
-            // --- end config block ---
+            // End of config
 
             // Faction dictionary
             var factionsByEdid = new Dictionary<string, IFactionGetter>(StringComparer.OrdinalIgnoreCase);
