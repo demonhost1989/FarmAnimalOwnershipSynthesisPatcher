@@ -723,18 +723,23 @@ namespace FarmAnimalOwnershipProject
                 factionEdid = direct ?? string.Empty;
                 return true;
             }
+            
+            // find a partial match for cellEdid
+            // check if any convention key is contained within the provided editorId
+            var match = ConventionOverrides
+                .FirstOrDefault(kvp => !string.IsNullOrEmpty(kvp.Key) &&
+                    editorId.Contains(editorId, StringComparison.OrdinalIgnoreCase));
 
-            // Key contained in editorId (partial match)
-            var key = ConventionOverrides.Keys.FirstOrDefault(k => editorId.Contains(k, StringComparison.OrdinalIgnoreCase));
-            if (key != null)
+            if (!string.IsNullOrEmpty(match.Value))
             {
-                factionEdid = ConventionOverrides[key] ?? string.Empty;
+                factionEdid = match.Value ?? string.Empty; // found by partial match
                 return true;
             }
 
-            // editorId contained in key (other direction)
-            key = ConventionOverrides.Keys.FirstOrDefault(k => k.Contains(editorId, StringComparison.OrdinalIgnoreCase));
-            if (key != null)
+            // check the other direction: a key that contains the editorId
+            var key = ConventionOverrides.Keys.FirstOrDefault(k =>
+                !string.IsNullOrEmpty(k) && k.Contains(editorId, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(key))
             {
                 factionEdid = ConventionOverrides[key] ?? string.Empty;
                 return true;
