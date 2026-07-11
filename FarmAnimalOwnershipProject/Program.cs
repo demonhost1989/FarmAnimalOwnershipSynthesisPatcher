@@ -174,7 +174,7 @@ namespace FarmAnimalOwnershipProject
                     factionsByEdid.TryAdd(fac.EditorID, fac);
             }
 
-            // Populate ConventionOverrides from Settings (user-editable list -> lookup dictionary)
+            // Populate ConventionOverrides from Settings
             ConventionOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var duplicateOverrideEdids = new List<string>();
             foreach (var entry in Settings.ConventionOverrides ?? [])
@@ -195,10 +195,10 @@ namespace FarmAnimalOwnershipProject
             }
 
             //  Debug: show loaded convention overrides count
-            //if (ConventionOverrides.Count > 0)
-            //{
+            //  if (ConventionOverrides.Count > 0)
+            //  {
             //      ConsoleWriteLine($"Loaded {ConventionOverrides.Count} convention overrides: {string.Join(", ", ConventionOverrides.Keys)}");
-            //}
+            //  }
 
             // Keep track of seen NPCs to avoid duplicates
             var seen = new HashSet<FormKey>();
@@ -693,13 +693,7 @@ namespace FarmAnimalOwnershipProject
             if (!string.Equals(digitsStripped, cleaned, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(digitsStripped))
                 AddCandidate(digitsStripped);
 
-            // Remove the common words anywhere and return that variant (regex-based)
-            var wordsToRemove = new[] { "Exterior", "Interior", "Location", "Farm", "House", "Meadery", "Mill", "Village", "Stead", "Homestead", "Hold", "HQ", "Fort", "Tavern", "Inn" };
-            var pattern = "(" + string.Join("|", wordsToRemove.Select(w => System.Text.RegularExpressions.Regex.Escape(w))) + ")";
-            var removed = System.Text.RegularExpressions.Regex.Replace(cleaned, pattern, "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Trim();
-            AddCandidate(removed);
-
-            // Yield in the collected order, unique
+           // Yield in the collected order, unique
             foreach (var s in ordered)
                 yield return s;
         }
