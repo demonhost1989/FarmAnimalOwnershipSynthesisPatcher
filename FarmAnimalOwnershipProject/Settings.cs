@@ -1,38 +1,52 @@
-using System.ComponentModel;
 using Newtonsoft.Json;
+using System.ComponentModel;
+
 
 namespace FarmAnimalOwnershipProject
 {
+
     [JsonObject]
     public class ConventionOverrideEntry
     {
-        [DisplayName("Cell or Location EditorID")]
-        [Description("The EditorID of the CELL or LOCATION record you want to force a match for.")]
+
+        [DisplayName("Match Pattern")]
+        [Description("For Cell/Location or Actor Name: a substring to match (partial matching). For Plugin Name: a wildcard pattern (e.g. '*housecat*.esp').")]
         [JsonProperty]
         public string EditorID { get; set; } = string.Empty;
 
         [DisplayName("Faction EditorID")]
-        [Description("The EditorID of the faction that should own animals in that cell/location.")]
+        [Description("The EditorID of the faction that should own animals matching the pattern above.")]
         [JsonProperty]
         public string FactionEditorID { get; set; } = string.Empty;
     }
 
-    // Minimal PluginFilter enum to keep compatibility with existing code that references it.
-    public enum PluginFilter
+
+    [JsonObject]
+    public class PluginFactionOverrideEntry
     {
-        AllPlugins
+
+        [DisplayName("Plugin Name (partial matching)")]
+        [Description("A substring of the plugin file name that placed the animal (e.g. 'MyFarmMod').")]
+        [JsonProperty]
+        public string PluginName { get; set; } = string.Empty;
+
+        [DisplayName("Faction EditorID")]
+        [Description("The EditorID of the faction that should own animals placed by matching plugins.")]
+        [JsonProperty]
+        public string FactionEditorID { get; set; } = string.Empty;
     }
+
 
     [JsonObject]
     public class Settings
     {
-        
+
         [DisplayName("Races to patch (partial matching)")]
         [Description("IncludeRaceTerms")]
         [JsonProperty]
         public List<string> IncludeRaceTerms { get; set; } =
         [
-            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky",
+            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Goose", "Rabbit", "Pet", 
         ];
 
         [DisplayName("Actor names to exclude from patching (partial matching)")]
@@ -40,34 +54,62 @@ namespace FarmAnimalOwnershipProject
         [JsonProperty]
         public List<string> ExcludeNameTerms { get; set; } =
         [
-            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead",
+            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost", "Vampire", "Necromancer",
         ];
 
-        [DisplayName("Plugins to exclude from patching (wildcard support)")]
+        [DisplayName("Plugins to exclude from patching (partial matching)")]
         [Description("ExcludePlugins")]
         [JsonProperty]
         public List<string> ExcludePlugins { get; set; } =
         [
-            "Vigilant.esm", "*FollowerFramework*", "*SkyrimUnderground*", "*HearthFire*", "cc*", "Glenmoril.esm",
+            "Vigilant", "SkyrimUnderground", "HearthFire", "cc", "Glenmoril",
         ];
 
-        [DisplayName("Cells to exclude from patching (wildcard support)")]
+        [DisplayName("Cells to exclude from patching (partial matching)")]
         [Description("ExcludeCellRules")]
         [JsonProperty]
         public List<string> ExcludeCellRules { get; set; } =
         [
-            "BYOH*", "cc*",
+            "BYOH", "cc", "Helgen",
         ];
 
-        [DisplayName("Location Types to exclude (exact matches)")]
+        [DisplayName("Location Types to exclude (partial matching)")]
         [Description("ExcludeLocTypeRules")]
         [JsonProperty]
         public List<string> ExcludeLocTypeRules { get; set; } =
         [
-            "LocTypeDungeon", "LocTypeAnimalDen", "LocTypeBanditCamp", "LocTypeDragonLair", "LocTypeDragonPriestLair",
-            "LocTypeDraugrCrypt", "LocTypeDwarvenAutomatons", "LocTypeFalmerHive", "LocTypeGiantCamp", "LocTypeHagravenNest",
-            "LocTypeSprigganGrove", "LocTypeVampireLair", "LocTypeWarlockLair", "LocTypeWerewolfLair", "LocTypeForswornCamp",
-            "LocSetCave", "LocSetDwarvenRuin", "LocSetNordicRuin", "LocSetCaveIce", "LocTypePlayerHouse",
+            "Dungeon", "AnimalDen", "Bandit", "Dragon", "Draugr", "Dwarven",
+            "Falmer", "Giant", "Hagraven", "Spriggan", "Vampire", "Warlock",
+            "Werewolf", "Forsworn", "Cave", "Ruin", "PlayerHouse", "Lair", 
+        ];
+
+        [DisplayName("Plugin overrides (Plugin name -> Faction EditorID) Partial Matching")]
+        [Description("Animals placed by a matching plugin are assigned to the given faction, taking precedence over location-based matching.")]
+        [JsonProperty]
+        public List<PluginFactionOverrideEntry> PluginFactionOverrides { get; set; } =
+        [
+            new() { PluginName = "Whiterun", FactionEditorID = "TownWhiterunFaction" },
+            new() { PluginName = "Solitude", FactionEditorID = "TownSolitudeFaction" },
+            new() { PluginName = "Riften", FactionEditorID = "TownRiftenFaction" },
+            new() { PluginName = "Windhelm", FactionEditorID = "TownWindhelmFaction" },
+            new() { PluginName = "Markarth", FactionEditorID = "TownMarkarthFaction" },
+            new() { PluginName = "Falkreath", FactionEditorID = "TownFalkreathFaction" },
+            new() { PluginName = "Morthal", FactionEditorID = "TownMorthalFaction" },
+            new() { PluginName = "Dawnstar", FactionEditorID = "TownDawnstarFaction" },
+            new() { PluginName = "Winterhold", FactionEditorID = "TownWinterholdFaction" },
+            new() { PluginName = "DragonBridge", FactionEditorID = "TownDragonBridgeFaction" },
+            new() { PluginName = "Ivarstead", FactionEditorID = "TownIvarsteadFaction" },
+            new() { PluginName = "Karthwasten", FactionEditorID = "TownKarthwastenFaction" },
+            new() { PluginName = "Riverwood", FactionEditorID = "TownRiverwoodFaction" },
+            new() { PluginName = "Rorikstead", FactionEditorID = "TownRoriksteadFaction" },
+            new() { PluginName = "Kynesgrove", FactionEditorID = "TownKynesgroveFaction" },
+            new() { PluginName = "Nightgate", FactionEditorID = "NightgateInnFaction" },
+            new() { PluginName = "OldHroldan", FactionEditorID = "TownOldHroldanFaction" },
+            new() { PluginName = "ShorsStone", FactionEditorID = "TownShorsStoneFaction" },
+            new() { PluginName = "Shor's Stone", FactionEditorID = "TownShorsStoneFaction" },
+            new() { PluginName = "DarkwaterCrossing", FactionEditorID = "TownDarkwaterCrossingFaction" },
+            new() { PluginName = "Skaal", FactionEditorID = "DLC2SVGreathallFaction" },
+            
         ];
 
         [DisplayName("Convention overrides (Cell/Location EditorID -> Faction EditorID) Partial Matching")]
@@ -75,22 +117,7 @@ namespace FarmAnimalOwnershipProject
         [JsonProperty]
         public List<ConventionOverrideEntry> ConventionOverrides { get; set; } =
         [
-            new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },
-            new() { EditorID = "DLC2SkaalVillageLocation", FactionEditorID = "DLC2SVGreathallFaction" },
-            new() { EditorID = "BearsCaveMillLocation", FactionEditorID = "RG439BearsCaveMillFaction" },
-            new() { EditorID = "DLC2RavenRockLocation", FactionEditorID = "DLC2RRBulwarkFaction" },
-            new() { EditorID = "KynesgroveFarmsLocationTGCoKG", FactionEditorID = "KynesgroveRagnasAndHerleifsHouseFactionTGCoKG" },
-            new() { EditorID = "KynesgroveGalasSteadLocationTGCoKG", FactionEditorID = "KynesgroveGalasHouseFactionTGCoKG" },
-            new() { EditorID = "RoriksteadLemkilsFarmLocation", FactionEditorID = "RoriksteadLemkilsFarmFaction" },
-            new() { EditorID = "HonningbrewMeadery", FactionEditorID = "HonningbrewMeaderyFaction" },
-            new() { EditorID = "0BearQOrigin", FactionEditorID = "TownWindhelmFaction" },
-            new() { EditorID = "DragonBridgeFourShieldsTavern", FactionEditorID = "DragonBridgeFourShieldsInnFaction" },
-            new() { EditorID = "NightgateInn", FactionEditorID = "NG_JobMerchantFaction" },
-            new() { EditorID = "Dawnguard", FactionEditorID = "DLC1DawnguardFaction" },
-            new() { EditorID = "HunterWorld", FactionEditorID = "DLC1DawnguardFaction" },
-            new() { EditorID = "AngisCampExterior", FactionEditorID = "WIGenericCrimeFaction" },
-            new() { EditorID = "0WindhelmExtDwelling", FactionEditorID = "WindhelmSurWheelhouseFaction" },
-            new() { EditorID = "WBPT", FactionEditorID = "SolitudeBluePalaceFaction" },
+            // Vanilla Towns
             new() { EditorID = "Whiterun", FactionEditorID = "TownWhiterunFaction" },
             new() { EditorID = "Solitude", FactionEditorID = "TownSolitudeFaction" },
             new() { EditorID = "Riften", FactionEditorID = "TownRiftenFaction" },
@@ -99,7 +126,7 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "Falkreath", FactionEditorID = "TownFalkreathFaction" },
             new() { EditorID = "Morthal", FactionEditorID = "TownMorthalFaction" },
             new() { EditorID = "Dawnstar", FactionEditorID = "TownDawnstarFaction" },
-            new() { EditorID = "RavenRock", FactionEditorID = "DLC2CrimeRavenRockFaction" },
+            new() { EditorID = "Winterhold", FactionEditorID = "TownWinterholdFaction" },
             new() { EditorID = "DragonBridge", FactionEditorID = "TownDragonBridgeFaction" },
             new() { EditorID = "Ivarstead", FactionEditorID = "TownIvarsteadFaction" },
             new() { EditorID = "Karthwasten", FactionEditorID = "TownKarthwastenFaction" },
@@ -107,6 +134,47 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "Rorikstead", FactionEditorID = "TownRoriksteadFaction" },
             new() { EditorID = "Kynesgrove", FactionEditorID = "TownKynesgroveFaction" },
             new() { EditorID = "Nightgate", FactionEditorID = "NightgateInnFaction" },
+            new() { EditorID = "OldHroldan", FactionEditorID = "TownOldHroldanFaction" },
+            new() { EditorID = "ShorsStone", FactionEditorID = "TownShorsStoneFaction" },
+            new() { EditorID = "Shor's Stone", FactionEditorID = "TownShorsStoneFaction" },
+            new() { EditorID = "DarkwaterCrossing", FactionEditorID = "TownDarkwaterCrossingFaction" },
+                        
+            // Misc Locations
+            new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },
+            new() { EditorID = "DragonBridgeFourShieldsTavern", FactionEditorID = "DragonBridgeFourShieldsInnFaction" },
+            new() { EditorID = "HonningbrewMeadery", FactionEditorID = "HonningbrewMeaderyFaction" },
+            new() { EditorID = "AngisCampExterior", FactionEditorID = "WIGenericCrimeFaction" },
+            new() { EditorID = "LeftHandMine", FactionEditorID = "TownLeftHandMineFaction" },
+            new() { EditorID = "Stonehills", FactionEditorID = "TownStonehillsFaction" },
+            new() { EditorID = "BluePalace", FactionEditorID = "SolitudeBluePalaceFaction" },
+            
+            // Modded Locations
+            new() { EditorID = "BearsCaveMillLocation", FactionEditorID = "RG439BearsCaveMillFaction" },
+            new() { EditorID = "KynesgroveFarmsLocationTGCoKG", FactionEditorID = "KynesgroveRagnasAndHerleifsHouseFactionTGCoKG" },
+            new() { EditorID = "KynesgroveGalasSteadLocationTGCoKG", FactionEditorID = "KynesgroveGalasHouseFactionTGCoKG" },
+            new() { EditorID = "0BearQOrigin", FactionEditorID = "TownWindhelmFaction" },
+            new() { EditorID = "NightgateInn", FactionEditorID = "NG_JobMerchantFaction" },
+            new() { EditorID = "0WindhelmExtDwelling", FactionEditorID = "WindhelmSurWheelhouseFaction" },
+            new() { EditorID = "GraniteHill", FactionEditorID = "TownGraniteHillFaction" },
+            new() { EditorID = "HalloftheVigilant", FactionEditorID = "VigilantOfStendarrFaction" },
+            new() { EditorID = "WBPT", FactionEditorID = "SolitudeBluePalaceFaction" },
+            
+            // DLC Locations
+            new() { EditorID = "TelMithryn", FactionEditorID = "TelMithrynFaction" },
+            new() { EditorID = "DLC2SkaalVillageLocation", FactionEditorID = "DLC2SVGreathallFaction" },
+            new() { EditorID = "DLC2RavenRockLocation", FactionEditorID = "DLC2RRBulwarkFaction" },
+            new() { EditorID = "Dawnguard", FactionEditorID = "DLC1DawnguardFaction" },
+            new() { EditorID = "HunterWorld", FactionEditorID = "DLC1DawnguardFaction" },
+            new() { EditorID = "RavenRock", FactionEditorID = "DLC2CrimeRavenRockFaction" },
+
+            // Orc Strongholds
+            new() { EditorID = "DushnikhYal", FactionEditorID = "TownDushnikhYalFaction" },
+            new() { EditorID = "Largashbur", FactionEditorID = "TownLargashburFaction" },
+            new() { EditorID = "MorKhazgur", FactionEditorID = "TownMorKhazgurFaction" },
+            new() { EditorID = "Narzulbur", FactionEditorID = "TownNarzulburFaction" },
         ];
     }
 }
+
+
+// new() { EditorID = "RoriksteadLemkilsFarmLocation", FactionEditorID = "RoriksteadLemkilsFarmFaction" },

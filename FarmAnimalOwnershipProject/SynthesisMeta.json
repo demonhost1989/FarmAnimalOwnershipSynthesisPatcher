@@ -6,6 +6,12 @@
   "PreferredAutoVersioning": "Default",
   "RequiredMods": [],
   "TargetedReleases": [
-    "SkyrimSE"    
+    "SkyrimLE",
+    "SkyrimSE",
+    "SkyrimVR",
+    "EnderalLE",
+    "EnderalSE",
+    "SkyrimSEGog",
+    "EnderalSEGog"
   ]
 }
