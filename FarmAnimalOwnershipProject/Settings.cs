@@ -41,7 +41,7 @@ namespace FarmAnimalOwnershipProject
     public class Settings
     {
 
-        [DisplayName("Races to patch (partial matching)")]
+        [DisplayName("Races to patch")]
         [Description("IncludeRaceTerms")]
         [JsonProperty]
         public List<string> IncludeRaceTerms { get; set; } =
@@ -49,7 +49,7 @@ namespace FarmAnimalOwnershipProject
             "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Goose", "Rabbit", "Pet", 
         ];
 
-        [DisplayName("Actor names to exclude from patching (partial matching)")]
+        [DisplayName("Names to exclude")]
         [Description("ExcludeNameTerms")]
         [JsonProperty]
         public List<string> ExcludeNameTerms { get; set; } =
@@ -57,7 +57,7 @@ namespace FarmAnimalOwnershipProject
             "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost", "Vampire", "Necromancer",
         ];
 
-        [DisplayName("Plugins to exclude from patching (partial matching)")]
+        [DisplayName("Plugins to exclude")]
         [Description("ExcludePlugins")]
         [JsonProperty]
         public List<string> ExcludePlugins { get; set; } =
@@ -65,7 +65,7 @@ namespace FarmAnimalOwnershipProject
             "Vigilant", "SkyrimUnderground", "HearthFire", "cc", "Glenmoril",
         ];
 
-        [DisplayName("Cells to exclude from patching (partial matching)")]
+        [DisplayName("Cells to exclude")]
         [Description("ExcludeCellRules")]
         [JsonProperty]
         public List<string> ExcludeCellRules { get; set; } =
@@ -73,7 +73,7 @@ namespace FarmAnimalOwnershipProject
             "BYOH", "cc", "Helgen",
         ];
 
-        [DisplayName("Location Types to exclude (partial matching)")]
+        [DisplayName("Location Types to exclude")]
         [Description("ExcludeLocTypeRules")]
         [JsonProperty]
         public List<string> ExcludeLocTypeRules { get; set; } =
@@ -83,7 +83,7 @@ namespace FarmAnimalOwnershipProject
             "Werewolf", "Forsworn", "Cave", "Ruin", "PlayerHouse", "Lair", 
         ];
 
-        [DisplayName("Plugin overrides (Plugin name -> Faction EditorID) Partial Matching")]
+        [DisplayName("Plugin overrides (Plugin name -> Faction EditorID)")]
         [Description("Animals placed by a matching plugin are assigned to the given faction, taking precedence over location-based matching.")]
         [JsonProperty]
         public List<PluginFactionOverrideEntry> PluginFactionOverrides { get; set; } =
@@ -109,10 +109,9 @@ namespace FarmAnimalOwnershipProject
             new() { PluginName = "Shor's Stone", FactionEditorID = "TownShorsStoneFaction" },
             new() { PluginName = "DarkwaterCrossing", FactionEditorID = "TownDarkwaterCrossingFaction" },
             new() { PluginName = "Skaal", FactionEditorID = "DLC2SVGreathallFaction" },
-            
         ];
 
-        [DisplayName("Convention overrides (Cell/Location EditorID -> Faction EditorID) Partial Matching")]
+        [DisplayName("Convention overrides (Cell/Location EditorID -> Faction EditorID)")]
         [Description("Be careful not to use too broad terms! EditorID can be either a CELL or a LOCATION EditorID.")]
         [JsonProperty]
         public List<ConventionOverrideEntry> ConventionOverrides { get; set; } =
