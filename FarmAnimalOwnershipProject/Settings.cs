@@ -78,7 +78,7 @@ namespace FarmAnimalOwnershipProject
         [JsonProperty]
         public List<string> ExcludeLocTypeRules { get; set; } =
         [
-            "Dungeon", "AnimalDen", "Bandit", "Dragon", "Draugr", "Dwarven",
+            "Dungeon", "AnimalDen", "Bandit", "DragonLair", "Draugr", "Dwarven",
             "Falmer", "Giant", "Hagraven", "Spriggan", "Vampire", "Warlock",
             "Werewolf", "Forsworn", "Cave", "Ruin", "PlayerHouse", "Lair", 
         ];
