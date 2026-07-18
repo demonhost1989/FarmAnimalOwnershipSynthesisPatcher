@@ -103,7 +103,7 @@ namespace FarmAnimalOwnershipProject
             new() { PluginName = "Riverwood", FactionEditorID = "TownRiverwoodFaction" },
             new() { PluginName = "Rorikstead", FactionEditorID = "TownRoriksteadFaction" },
             new() { PluginName = "Kynesgrove", FactionEditorID = "TownKynesgroveFaction" },
-            new() { PluginName = "Nightgate", FactionEditorID = "NightgateInnFaction" },
+            new() { PluginName = "Nightgate", FactionEditorID = "Hadring" },
             new() { PluginName = "OldHroldan", FactionEditorID = "TownOldHroldanFaction" },
             new() { PluginName = "ShorsStone", FactionEditorID = "TownShorsStoneFaction" },
             new() { PluginName = "Shor's Stone", FactionEditorID = "TownShorsStoneFaction" },
