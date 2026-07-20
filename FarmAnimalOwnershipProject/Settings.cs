@@ -46,8 +46,24 @@ namespace FarmAnimalOwnershipProject
         [JsonProperty]
         public List<string> IncludeRaceTerms { get; set; } =
         [
-            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Goose", "Rabbit", "Pet", 
+            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky",
+            "Goose", "Rabbit", "Pet",
+
         ];
+
+        [DisplayName("Owners to never assign")]
+        [Description("Match against the owning NPC or Faction's EditorID. Already-owned animals whose owner matches one of these terms are ignored entirely when tallying votes for the ownership-by-voting fallback — they can never influence or become the majority owner. Useful for excluding pseudo-ownership markers (like the Player or PlayerFaction) that don't represent a real farm/town owner.")]
+        [JsonProperty]
+        public List<string> ExcludeOwnerNames { get; set; } =
+        [
+            "Player", "PlayerFaction", "CW", "Bandit", "Hagraven", "Fort", "Draugr", "JobMerchantFaction",
+            "Fake", "CarriageDriver", "CarriageSystemFaction", 
+        ];
+
+        [DisplayName("Minimum owned animals required for a majority")]
+        [Description("A cell needs at least this many already-owned animals before its majority owner is trusted as the voting fallback for its unowned animals. Set to 1 to trust even a single owned animal. Only used when neither a plugin nor a convention override matches.")]
+        [JsonProperty]
+        public int MinimumOwnedObjectsForMajority { get; set; } = 1;
 
         [DisplayName("Names to exclude")]
         [Description("ExcludeNameTerms")]
@@ -137,6 +153,7 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "ShorsStone", FactionEditorID = "TownShorsStoneFaction" },
             new() { EditorID = "Shor's Stone", FactionEditorID = "TownShorsStoneFaction" },
             new() { EditorID = "DarkwaterCrossing", FactionEditorID = "TownDarkwaterCrossingFaction" },
+            new() { EditorID = "MixwaterMill", FactionEditorID = "MixwaterMillGilfreHouseFaction" },
                         
             // Misc Locations
             new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },

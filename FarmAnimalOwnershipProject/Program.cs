@@ -570,7 +570,6 @@ namespace FarmAnimalOwnershipProject
                     continue;
 
                 var animalLabel = npc.EditorID ?? "UnknownNPC";
-                string pluginName = placedNpc.FormKey.ModKey.FileName;
 
                 // Race check first: only farm-animal races are candidates at all.
                 var raceEdid = npc.Race.TryResolve(state.LinkCache)?.EditorID ?? "UnknownRace";
