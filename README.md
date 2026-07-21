@@ -8,7 +8,7 @@ For exmaple: if the patcher can't match the chicken at farm x with a faction con
 
 The patcher is not flawless and it is likely to miss some, and maybe even patch some that shouldn't be. The reason the patcher works as well as it does
 is because of the inclusing and exclusion that preempts the logic, so it will only ever aim to patch certain animals who are in appropriate locations. Or rather, it will not try and patch animals in dungeons, dwarven ruins, in the wilderness etc.
-With that said, in my personal load order with 4000 mods, the patcher found over 600 animals to asign ownership to. *Chefs kiss*
+With that said, in my personal load order with 4000 mods, the patcher found over 600 animals to assign ownership to. *Chefs kiss*
 
 The patcher comes preconfigured based on my personal load order and the default settings are viewable in the settings.cs file.
 You can select races to patch (with partial matching), names to exclude (with partial matching), plugins to exclude (with partial matching),
