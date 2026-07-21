@@ -17,7 +17,7 @@ match a location/cell with a particular faction.
 
 Here's a simplified peek at what the patcher is looking for: <br>
 Animal races -> "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", ETC. <br>
-Town factions -> "Riverwood", "OldHroldan", "Rorikstead", "Solitude", ETC.
+Factions -> "Riverwood", "OldHroldan", "Rorikstead", "Solitude", "DarkwaterCrossing", ETC.
 
 and what the patcher is looking to avoid: <br>
 Animal names -> "Wild", "Stray", "Draugr", "Forsworn", "Bandit", "Pigeon", ETC. <br>
