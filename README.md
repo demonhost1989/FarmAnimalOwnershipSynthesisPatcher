@@ -12,7 +12,7 @@ With that said, in my personal load order with 4000 mods, the patcher found over
 
 The patcher comes preconfigured based on my personal load order and the default settings are viewable in the settings.cs file.
 You can select races to patch (with partial matching), names to exclude (with partial matching), plugins to exclude (with partial matching),
-cells to exclude (with partial matching), location types to exclude (with partial matching), then there is an manual input section to
+cells to exclude (with partial matching), location types to exclude (with partial matching), then there is a manual input section to
 match a location/cell with a particular faction.
 
 Here's a simplified peek at what the patcher is looking for:
