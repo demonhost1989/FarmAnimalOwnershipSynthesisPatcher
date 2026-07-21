@@ -19,7 +19,5 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Noggog.SourceGenerators" Version="4.3.0" />
     <PackageReference Include="Synthesis.Bethesda" Version="0.36.5" />  
-
   </ItemGroup>
-
-</Project>
+</Project> 

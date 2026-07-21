@@ -6,11 +6,11 @@ namespace FarmAnimalOwnershipProject
 {
 
     [JsonObject]
-    public class ConventionOverrideEntry
+    public class ManualFactionMatchEntry
     {
 
         [DisplayName("Match Pattern")]
-        [Description("For Cell/Location or Actor Name: a substring to match (partial matching). For Plugin Name: a wildcard pattern (e.g. '*housecat*.esp').")]
+        [Description("A substring to match against a cell or location EditorID (partial matching).")]
         [JsonProperty]
         public string EditorID { get; set; } = string.Empty;
 
@@ -42,7 +42,7 @@ namespace FarmAnimalOwnershipProject
     {
 
         [DisplayName("Races to patch")]
-        [Description("IncludeRaceTerms")]
+        [Description("The races the patcher is looking for")]
         [JsonProperty]
         public List<string> IncludeRaceTerms { get; set; } =
         [
@@ -52,37 +52,38 @@ namespace FarmAnimalOwnershipProject
         ];
 
         [DisplayName("Owners to never assign")]
-        [Description("Match against the owning NPC or Faction's EditorID. Already-owned animals whose owner matches one of these terms are ignored entirely when tallying votes for the ownership-by-voting fallback — they can never influence or become the majority owner. Useful for excluding pseudo-ownership markers (like the Player or PlayerFaction) that don't represent a real farm/town owner.")]
+        [Description("Factions to never assign as owners")]
         [JsonProperty]
         public List<string> ExcludeOwnerNames { get; set; } =
         [
             "Player", "PlayerFaction", "CW", "Bandit", "Hagraven", "Fort", "Draugr", "JobMerchantFaction",
-            "Fake", "CarriageDriver", "CarriageSystemFaction", 
+            "Fake", "CarriageDriver", "CarriageSystemFaction",
         ];
 
         [DisplayName("Minimum owned animals required for a majority")]
-        [Description("A cell needs at least this many already-owned animals before its majority owner is trusted as the voting fallback for its unowned animals. Set to 1 to trust even a single owned animal. Only used when neither a plugin nor a convention override matches.")]
+        [Description("A cell needs at least this many already-owned animals before the ownership by voting system is active")]
         [JsonProperty]
         public int MinimumOwnedObjectsForMajority { get; set; } = 1;
 
         [DisplayName("Names to exclude")]
-        [Description("ExcludeNameTerms")]
+        [Description("Actor name terms to exclude from patching")]
         [JsonProperty]
         public List<string> ExcludeNameTerms { get; set; } =
         [
-            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost", "Vampire", "Necromancer",
+            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost",
+            "Vampire", "Necromancer", "Bone",
         ];
 
         [DisplayName("Plugins to exclude")]
-        [Description("ExcludePlugins")]
+        [Description("Plugins that are entirely excluded from patching")]
         [JsonProperty]
         public List<string> ExcludePlugins { get; set; } =
         [
-            "Vigilant", "SkyrimUnderground", "HearthFire", "cc", "Glenmoril",
+            "Vigilant", "SkyrimUnderground", "HearthFire", "cc", "Glenmoril", "HorrorOfMorthal",
         ];
 
         [DisplayName("Cells to exclude")]
-        [Description("ExcludeCellRules")]
+        [Description("Cells that are entirely excluded from patching")]
         [JsonProperty]
         public List<string> ExcludeCellRules { get; set; } =
         [
@@ -90,13 +91,13 @@ namespace FarmAnimalOwnershipProject
         ];
 
         [DisplayName("Location Types to exclude")]
-        [Description("ExcludeLocTypeRules")]
+        [Description("Location types that are entirely excluded from patching")]
         [JsonProperty]
         public List<string> ExcludeLocTypeRules { get; set; } =
         [
             "Dungeon", "AnimalDen", "Bandit", "DragonLair", "Draugr", "Dwarven",
             "Falmer", "GiantCamp", "Hagraven", "Spriggan", "Vampire", "Warlock",
-            "Werewolf", "Forsworn", "Cave", "Ruin", "PlayerHouse", "Lair", 
+            "Werewolf", "Forsworn", "Cave", "Ruin", "PlayerHouse", "Lair",
         ];
 
         [DisplayName("Plugin overrides (Plugin name -> Faction EditorID)")]
@@ -127,10 +128,10 @@ namespace FarmAnimalOwnershipProject
             new() { PluginName = "Skaal", FactionEditorID = "DLC2SVGreathallFaction" },
         ];
 
-        [DisplayName("Convention overrides (Cell/Location EditorID -> Faction EditorID)")]
-        [Description("Be careful not to use too broad terms! EditorID can be either a CELL or a LOCATION EditorID.")]
+        [DisplayName("Manual Faction Matches")]
+        [Description("Matches a cell/location EditorID to a faction. Only consulted once naming conventions (Town/Farm/Mill patterns) have already had a chance to resolve one. Be careful not to use too broad terms! EditorID can be either a CELL or a LOCATION EditorID.")]
         [JsonProperty]
-        public List<ConventionOverrideEntry> ConventionOverrides { get; set; } =
+        public List<ManualFactionMatchEntry> ManualFactionMatches { get; set; } =
         [
             // Vanilla Towns
             new() { EditorID = "Whiterun", FactionEditorID = "TownWhiterunFaction" },
@@ -154,9 +155,9 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "Shor's Stone", FactionEditorID = "TownShorsStoneFaction" },
             new() { EditorID = "DarkwaterCrossing", FactionEditorID = "TownDarkwaterCrossingFaction" },
             new() { EditorID = "MixwaterMill", FactionEditorID = "MixwaterMillGilfreHouseFaction" },
-                        
+
             // Misc Locations
-            new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },
+        //  new() { EditorID = "DawnstarSanctuaryLocation", FactionEditorID = "DarkBrotherhoodFaction" },
             new() { EditorID = "DragonBridgeFourShieldsTavern", FactionEditorID = "DragonBridgeFourShieldsInnFaction" },
             new() { EditorID = "HonningbrewMeadery", FactionEditorID = "HonningbrewMeaderyFaction" },
             new() { EditorID = "AngisCampExterior", FactionEditorID = "WIGenericCrimeFaction" },
@@ -191,6 +192,3 @@ namespace FarmAnimalOwnershipProject
         ];
     }
 }
-
-
-// new() { EditorID = "RoriksteadLemkilsFarmLocation", FactionEditorID = "RoriksteadLemkilsFarmFaction" },
