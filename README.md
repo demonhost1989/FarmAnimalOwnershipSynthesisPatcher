@@ -15,10 +15,10 @@ You can select races to patch (with partial matching), names to exclude (with pa
 cells to exclude (with partial matching), location types to exclude (with partial matching), then there is a manual input section to
 match a location/cell with a particular faction.
 
-Here's a simplified peek at what the patcher is looking for:
+Here's a simplified peek at what the patcher is looking for: <br>
 Animal races -> "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", ETC.
 Town factions -> "Riverwood", "OldHroldan", "Rorikstead", "Solitude", ETC.
 
-and what the patcher is looking to avoid:
+and what the patcher is looking to avoid: <br>
 Animal names -> "Wild", "Stray", "Draugr", "Forsworn", "Bandit", "Pigeon", ETC.
 Location Types -> "Dungeon", "AnimalDen", "Bandit", "DragonLair", "Draugr", "Dwarven", Falmer", "GiantCamp", ETC.
