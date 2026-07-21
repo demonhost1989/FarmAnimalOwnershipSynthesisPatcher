@@ -16,9 +16,9 @@ cells to exclude (with partial matching), location types to exclude (with partia
 match a location/cell with a particular faction.
 
 Here's a simplified peek at what the patcher is looking for: <br>
-Animal races -> "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", ETC.
+Animal races -> "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", ETC. <br>
 Town factions -> "Riverwood", "OldHroldan", "Rorikstead", "Solitude", ETC.
 
 and what the patcher is looking to avoid: <br>
-Animal names -> "Wild", "Stray", "Draugr", "Forsworn", "Bandit", "Pigeon", ETC.
+Animal names -> "Wild", "Stray", "Draugr", "Forsworn", "Bandit", "Pigeon", ETC. <br>
 Location Types -> "Dungeon", "AnimalDen", "Bandit", "DragonLair", "Draugr", "Dwarven", Falmer", "GiantCamp", ETC.
