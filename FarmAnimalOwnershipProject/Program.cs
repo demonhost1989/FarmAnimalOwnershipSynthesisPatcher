@@ -109,104 +109,6 @@ namespace FarmAnimalOwnershipProject
         }
 
         // ------------------------------------------------------------------
-        // Location categorization
-        // ------------------------------------------------------------------
-
-        public enum LocationCategory
-        {
-            Town, Farm, Unknown, Mill, Wilderness, Stable, Stronghold, Palace, Urban,
-        }
-
-        public static (LocationCategory category, ILocationGetter? matched) CategorizeLocation(
-            ILocationGetter? location,
-            ILinkCache<ISkyrimMod, ISkyrimModGetter> linkCache,
-            ICellGetter? cell)
-        {
-            // Location-based keyword detection. Substring matching, because the real keyword
-            // EditorIDs are "LocTypeFarm", "LocTypeTown", etc. — an exact set lookup of "Farm"
-            // would never match anything.
-            if (location != null)
-            {
-                var keywordEdids = location.Keywords?
-                    .Select(k => k.TryResolve(linkCache)?.EditorID)
-                    .Where(e => e != null)
-                    .Select(e => e!)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                if (keywordEdids != null)
-                {
-                    bool HasKeyword(string term) =>
-                        keywordEdids.Any(k => k.Contains(term, StringComparison.OrdinalIgnoreCase));
-
-                    if (HasKeyword("Farm"))
-                        return (LocationCategory.Farm, location);
-
-                    if (HasKeyword("Mill"))
-                        return (LocationCategory.Mill, location);
-
-                    if (HasKeyword("Settlement") || HasKeyword("Town")
-                        || HasKeyword("City") || HasKeyword("Village"))
-                        return (LocationCategory.Town, location);
-
-                    if (HasKeyword("Castle") || HasKeyword("Palace") || HasKeyword("Temple"))
-                        return (LocationCategory.Palace, location);
-
-                    if (HasKeyword("OrcStronghold"))
-                        return (LocationCategory.Stronghold, location);
-
-                    if (HasKeyword("Cemetery")
-                        || HasKeyword("Dwelling")
-                        || HasKeyword("Guild")
-                        || HasKeyword("Habitation")
-                        || HasKeyword("Inn")
-                        || HasKeyword("Store"))
-                        return (LocationCategory.Urban, location);
-                }
-            }
-
-            // Cell EditorID detection (fallback when there's no location or no useful keywords)
-            if (cell?.EditorID is string edid)
-            {
-
-                if (edid.Contains("wilderness", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Wilderness, location);
-
-                if (edid.Contains("farm", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Farm, location);
-
-                if (edid.Contains("mill", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Mill, location);
-
-                if (edid.Contains("stable", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Stable, location);
-
-                if (edid.Contains("village", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("settlement", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("town", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("city", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Town, location);
-
-                if (edid.Contains("castle", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("palace", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("temple", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Palace, location);
-
-                if (edid.Contains("cemetary", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("dwelling", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("guild", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("habitation", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("inn", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("dwelling", StringComparison.OrdinalIgnoreCase)
-                    || edid.Contains("store", StringComparison.OrdinalIgnoreCase))
-                    return (LocationCategory.Urban, location);
-
-
-            }
-
-            return (LocationCategory.Unknown, null);
-        }
-
-        // ------------------------------------------------------------------
         // Faction resolution
         // ------------------------------------------------------------------
 
@@ -382,21 +284,28 @@ namespace FarmAnimalOwnershipProject
         {
             string?[] editorIds = [cell?.EditorID, location?.EditorID];
 
-            // Naming convention against the cell EditorID, for cells whose location is missing
-            // or prefixed in a way the location pass can't strip (e.g. cell "SnowShodFarmExterior"
-            // -> root "SnowShodFarm" -> TownSnowShodFarmFaction, even though the location EDID
-            // carries a "Riften" prefix).
+            // Matches Cell to town"cell"faction or cell to "Cell"faction
             if (cell?.EditorID != null)
             {
-                var cellFactionResult = TryFindFactionByConvention(
+                var cellTownFactionResult = TryFindFactionByConvention(
                     cell.EditorID,
                     stripSuffix: "Exterior",
                     buildCandidateName: baseName => $"Town{baseName}Faction",
                     factionsByEdid,
                     extraRoots: GetTownRootCandidates(cell.EditorID),
                     fuzzyRequiredPrefix: "Town");
-                if (cellFactionResult.Faction != null)
-                    return (cellFactionResult.Faction, $"Cell-Town faction match");
+                if (cellTownFactionResult.Faction != null)
+                    return (cellTownFactionResult.Faction, $"Cell-Town faction match");
+
+                var cellFarmFactionResult = TryFindFactionByConvention(
+                    cell.EditorID,
+                    stripSuffix: "Exterior",
+                    buildCandidateName: baseName => $"{baseName}",
+                    factionsByEdid,
+                    extraRoots: GetTownRootCandidates(cell.EditorID));
+                if (cellFarmFactionResult.Faction != null)
+                    return (cellFarmFactionResult.Faction, $"Cell faction match");
+
             }
 
             // Naming conventions against the location EditorID.
@@ -826,10 +735,10 @@ namespace FarmAnimalOwnershipProject
 
                 // Matching. Naming conventions and manual faction matches beat plugin-based
                 // matching; the raw location is passed to TryGetTownFaction so these lookups
-                // still run even when categorization came up Unknown (the category only
-                // affects the skip reason).
+                // still run even when there's no location or cell record to go on (the lack
+                // of records only affects the skip reason below).
                 var location = containingCell?.Location.TryResolve(state.LinkCache);
-                var (category, _) = CategorizeLocation(location, state.LinkCache, containingCell);
+                bool hasNoLocationData = location == null && containingCell == null;
 
                 var townFactionResult = TryGetTownFaction(location, factionsByEdid, containingCell);
                 IOwnerGetter? ownerRecord = townFactionResult.Faction;
@@ -876,11 +785,11 @@ namespace FarmAnimalOwnershipProject
                     missingFactionCount++;
                     missingFactionSet.Add(animalLabel);
 
-                    var reason = category == LocationCategory.Unknown
+                    var reason = hasNoLocationData
                         ? "No suitable owner, No suitable location"
                         : "No suitable owner";
 
-                    if (category == LocationCategory.Unknown)
+                    if (hasNoLocationData)
                     {
                         unknownCount++;
                         unknownSet.Add(animalLabel);
@@ -1170,7 +1079,7 @@ namespace FarmAnimalOwnershipProject
                 ("Farm animals were already owned", alreadyOwnedCount, false),
             //  ("Owned animals were excluded from voting by ExcludeOwnerNames", excludedOwnerVotesCount, false),
                 ("Farm animals had no suitable owner", missingFactionCount, false),
-                ("Farm animals were in an unsuitable location", unknownCount, false),
+                ("Farm animals were in an unknown location", unknownCount, false),
                 ("Farm animals were excluded by rules", excludedCount, false),
                 ("Placed NPCs (of any kind) didn't resolve as an NPC record", unresolvedNpcBaseCount, false),
             };
@@ -1183,15 +1092,15 @@ namespace FarmAnimalOwnershipProject
                 {
                     foreach (var kvp in patchedRaceCounts.OrderByDescending(k => k.Value))
                     {
-                        ConsoleWriteLine($"    {kvp.Value}  {kvp.Key}");
+                        ConsoleWriteLine($"    {kvp.Value}  {kvp.Key}(s)");
                     }
                 }
             }
 
             PrintDivider();
             ConsoleWriteLine("Patching is complete! Scroll up to read a report on what was patched, skipped, and excluded.");
-            ConsoleWriteLine("A couple of notes on the summaries: In the General Summary there is typically a large overlap between no suitable owner and an unsuitable location, since they can both be true.");
-            ConsoleWriteLine("The Exclusion Summary displays the NPCs who would have been patched by the logic were it not for exclusion rules.");
+            //  ConsoleWriteLine("A couple of notes on the summaries: In the General Summary there is typically a large overlap between no suitable owner and an unsuitable location, since they can both be true.");
+            //  ConsoleWriteLine("The Exclusion Summary displays the NPCs who would have been patched by the logic were it not for exclusion rules.");
             //  ConsoleWriteLine("The \"Base didn't resolve as an NPC record\" count covers ALL placed NPCs, not just farm animals (race can't be checked until Base resolves) — a large number here is worth investigating (e.g. animals placed via a Leveled Actor list) but isn't itself a count of missed animals.");
             PrintDivider();
         }
