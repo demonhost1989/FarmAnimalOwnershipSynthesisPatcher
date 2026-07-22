@@ -48,7 +48,7 @@ namespace FarmAnimalOwnershipProject
         [
             "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Geese", 
             "Goose", "Rabbit", "Pet", "Duck", "Rooster", "Lamb", "Foal", "Puppy", "Kitten", "Calf", "Cock",
-            "Domestic", "Guar", 
+            "Domestic", "MihailGuar", "MihailKagouti", "BantamGuar", 
 
         ];
 
