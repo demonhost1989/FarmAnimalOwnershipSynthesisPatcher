@@ -46,8 +46,9 @@ namespace FarmAnimalOwnershipProject
         [JsonProperty]
         public List<string> IncludeRaceTerms { get; set; } =
         [
-            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky",
-            "Goose", "Rabbit", "Pet",
+            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Geese", 
+            "Goose", "Rabbit", "Pet", "Duck", "Rooster", "Lamb", "Foal", "Puppy", "Kitten", "Calf", "Cock",
+            "Domestic", "Guar", 
 
         ];
 
@@ -71,7 +72,7 @@ namespace FarmAnimalOwnershipProject
         public List<string> ExcludeNameTerms { get; set; } =
         [
             "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost",
-            "Vampire", "Necromancer", "Bone",
+            "Vampire", "Necromancer", "Bone", "Feral", "Giant", "Dragon", "Troll",
         ];
 
         [DisplayName("Plugins to exclude")]
