@@ -1,101 +1,124 @@
-using Newtonsoft.Json;
-using System.ComponentModel;
+using Mutagen.Bethesda.Synthesis.Settings;
 
 
 namespace FarmAnimalOwnershipProject
 {
 
-    [JsonObject]
+    // ObjectNameMember targets the class (not a member) and names the member whose live value
+    // labels this entry when it appears inside a list. Without it, list rows render with a blank
+    // header and are dropped from the breadcrumb, leaving entries indistinguishable in the UI.
+    [SynthesisObjectNameMember(nameof(EditorID))]
     public class ManualFactionMatchEntry
     {
 
-        [DisplayName("Match Pattern")]
-        [Description("A substring to match against a cell or location EditorID (partial matching).")]
-        [JsonProperty]
+        [SynthesisSettingName("Cell or Location EditorID match")]
+        [SynthesisTooltip("Tries an exact Cell or Location EditorID first, then a partial match in either direction, also trying IDs without trailing digits. '*' and '?' are literal here.")]
         public string EditorID { get; set; } = string.Empty;
 
-        [DisplayName("Faction EditorID")]
-        [Description("The EditorID of the faction that should own animals matching the pattern above.")]
-        [JsonProperty]
+        [SynthesisSettingName("Faction EditorID")]
+        [SynthesisTooltip("Faction EditorID to try when the cell or location matches. Uses an exact ID first, then a partial Faction EditorID lookup.")]
         public string FactionEditorID { get; set; } = string.Empty;
     }
 
 
-    [JsonObject]
+    public class VerboseSettings
+    {
+
+        [SynthesisSettingName("Placed NPCs seen, by plugin filename")]
+        [SynthesisTooltip("Shows each plugin filename's total placed NPCs and how many matched a Race EditorID term before exclusions.")]
+        public bool PerPluginCounts { get; set; } = false;
+
+        [SynthesisSettingName("Skipped animals, by cell")]
+        [SynthesisTooltip("Lists unowned animals skipped because no owner was found, grouped by cell and plugin filename, with their Base NPC EditorIDs.")]
+        public bool SkippedAnimals { get; set; } = false;
+
+        [SynthesisSettingName("Show Base NPC EditorIDs beside race counts")]
+        [SynthesisTooltip("Shows each Base NPC EditorID and its patched count beside the race count in the General Summary. Use these IDs with 'Base NPC EditorID matches to exclude'.")]
+        public bool PatchedNpcEditorIds { get; set; } = false;
+
+        [SynthesisSettingName("Excluded animals, by race and by cell")]
+        [SynthesisTooltip("Shows excluded animal counts by race and by cell, with the matched exclusion rule for each cell group.")]
+        public bool ExcludedAnimals { get; set; } = false;
+
+        [SynthesisSettingName("Exclusion details")]
+        [SynthesisTooltip("Adds Base NPC EditorIDs and counts under each rule in the Exclusion Summary, plus the count of already-owned animals filtered out of voting in the General Summary.")]
+        public bool ExclusionDetail { get; set; } = false;
+
+        [SynthesisSettingName("Mark fuzzy Faction EditorID fallbacks")]
+        [SynthesisTooltip("Adds '(fuzzy)' to patched ownership reasons when a loose Faction EditorID lookup succeeds after an exact lookup fails.")]
+        public bool FuzzyMatchDetail { get; set; } = false;
+
+        [SynthesisSettingName("Timing breakdown")]
+        [SynthesisTooltip("Prints how long each phase of the run took. Useful when the patcher feels slow on a large load order.")]
+        public bool Timing { get; set; } = false;
+    }
+
+
+    [SynthesisObjectNameMember(nameof(PluginName))]
     public class PluginFactionOverrideEntry
     {
 
-        [DisplayName("Plugin Name (partial matching)")]
-        [Description("A substring of the plugin file name that placed the animal (e.g. 'MyFarmMod').")]
-        [JsonProperty]
+        [SynthesisSettingName("Plugin filename match")]
+        [SynthesisTooltip("Checks the winning placed-animal plugin filename. Entries without '*' or '?' use Contains match; entries with either use Wildcard match.")]
         public string PluginName { get; set; } = string.Empty;
 
-        [DisplayName("Faction EditorID")]
-        [Description("The EditorID of the faction that should own animals placed by matching plugins.")]
-        [JsonProperty]
+        [SynthesisSettingName("Faction EditorID")]
+        [SynthesisTooltip("Faction EditorID to try when the plugin filename matches. Uses an exact ID first, then a partial Faction EditorID lookup.")]
         public string FactionEditorID { get; set; } = string.Empty;
     }
 
 
-    [JsonObject]
     public class Settings
     {
 
-        [DisplayName("Races to patch")]
-        [Description("The races the patcher is looking for")]
-        [JsonProperty]
+        [SynthesisSettingName("Race EditorID matches")]
+        [SynthesisTooltip("Checks Race EditorIDs. Entries without '*' or '?' use Contains match; entries with either use Wildcard match. 'Cock' matches 'mihailcockatricerace2'.")]
         public List<string> IncludeRaceTerms { get; set; } =
         [
-            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Geese", 
+            "Goat", "Chicken", "Cow", "Horse", "Pig", "Sheep", "Dog", "Cat", "Bunny", "Husky", "Geese",
             "Goose", "Rabbit", "Pet", "Duck", "Rooster", "Lamb", "Foal", "Puppy", "Kitten", "Calf", "Cock",
-            "Domestic", "MihailGuar", "MihailKagouti", "BantamGuar", 
+            "Domestic", "MihailGuar", "MihailKagouti", "BantamGuar",
 
         ];
 
-        [DisplayName("Owners to never assign")]
-        [Description("Factions to never assign as owners")]
-        [JsonProperty]
+        [SynthesisSettingName("Owner EditorID matches excluded from voting")]
+        [SynthesisTooltip("Checks current Owner EditorIDs on already-owned animals for the vote only. Entries without '*' or '?' use Contains match; entries with either use Wildcard match. Other faction matches can still choose that owner.")]
         public List<string> ExcludeOwnerNames { get; set; } =
         [
             "Player", "CW", "Bandit", "Hagraven", "Fort", "Draugr", "JobMerchantFaction",
-            "Fake", "CarriageDriver", "CarriageSystemFaction", "RiverwoodCamillaFaction", "Service", 
+            "Fake", "CarriageDriver", "CarriageSystemFaction", "RiverwoodCamillaFaction", "Service",
         ];
 
-        [DisplayName("Minimum owned animals required for a majority")]
-        [Description("A cell needs at least this many already-owned animals before the ownership by voting system is active")]
-        [JsonProperty]
+        [SynthesisSettingName("Minimum owned animals for ownership vote")]
+        [SynthesisTooltip("Minimum number of eligible already-owned animals in a cell before the ownership-vote fallback can be used.")]
         public int MinimumOwnedObjectsForMajority { get; set; } = 1;
 
-        [DisplayName("Names to exclude")]
-        [Description("Actor name terms to exclude from patching")]
-        [JsonProperty]
+        [SynthesisSettingName("Base NPC EditorID matches to exclude")]
+        [SynthesisTooltip("Checks Base NPC EditorIDs of unowned race-matched animals, not Race EditorIDs or display names. Entries without '*' or '?' use Contains match; entries with either use Wildcard match. 'Cockatrice' matches any Base NPC EditorID containing it.")]
         public List<string> ExcludeNameTerms { get; set; } =
         [
-            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost",
-            "Vampire", "Necromancer", "Bone", "Feral", "Giant", "Dragon", "Troll", "ShellBug", "Netch", "BYOH", 
-            "Player", "CW", 
+            "Wild", "Bandit", "Forsworn", "Sabre", "Pigeon", "Zombie", "Draugr", "Durzog", "Stray", "Dead", "Ghost", "Cockatrice",
+            "Vampire", "Necromancer", "Bone", "Feral", "Giant", "Dragon", "Troll", "ShellBug", "Netch", "BYOH",
+            "Player", "CW",
         ];
 
-        [DisplayName("Plugins to exclude")]
-        [Description("Plugins that are entirely excluded from patching")]
-        [JsonProperty]
+        [SynthesisSettingName("Plugin filename matches to exclude")]
+        [SynthesisTooltip("Checks the winning placed-animal plugin filename. Entries without '*' or '?' use Contains match; entries with either use Wildcard match.")]
         public List<string> ExcludePlugins { get; set; } =
         [
-            "Vigilant", "SkyrimUnderground", "HearthFire", "cc", "Glenmoril", "HorrorOfMorthal", "BattleAftermath", 
-            "CWB", 
+            "Vigilant", "SkyrimUnderground", "HearthFire", "cc", "Glenmoril", "HorrorOfMorthal", "BattleAftermath",
+            "CWB",
         ];
 
-        [DisplayName("Cells to exclude")]
-        [Description("Cells that are entirely excluded from patching")]
-        [JsonProperty]
+        [SynthesisSettingName("Cell EditorID matches to exclude")]
+        [SynthesisTooltip("Checks the containing Cell EditorID, not its Location EditorID. Entries without '*' or '?' use Contains match; entries with either use Wildcard match.")]
         public List<string> ExcludeCellRules { get; set; } =
         [
-            "BYOH", "cc", "Helgen", "Labyrinthian", "POI", "CW", "DrelassCottage", "Attack", 
+            "BYOH", "cc", "Helgen", "Labyrinthian", "POI", "CW", "DrelassCottage", "Attack",
         ];
 
-        [DisplayName("Location Types to exclude")]
-        [Description("Location types that are entirely excluded from patching")]
-        [JsonProperty]
+        [SynthesisSettingName("LocType keyword EditorID matches to exclude")]
+        [SynthesisTooltip("Checks LocType-prefixed keyword EditorIDs on the cell's Location. Entries without '*' or '?' use Contains match; entries with either use Wildcard match.")]
         public List<string> ExcludeLocTypeRules { get; set; } =
         [
             "Dungeon", "AnimalDen", "Bandit", "DragonLair", "Draugr", "Dwarven",
@@ -103,9 +126,8 @@ namespace FarmAnimalOwnershipProject
             "Werewolf", "Forsworn", "Cave", "Ruin", "PlayerHouse", "Lair",
         ];
 
-        [DisplayName("Plugin overrides (Plugin name -> Faction EditorID)")]
-        [Description("Animals placed by a matching plugin are assigned to the given faction, taking precedence over location-based matching.")]
-        [JsonProperty]
+        [SynthesisSettingName("Plugin faction fallback (plugin filename -> faction EditorID)")]
+        [SynthesisTooltip("After earlier owner rules fail, checks the winning plugin filename with Contains match or Wildcard match, then tries the listed Faction EditorID.")]
         public List<PluginFactionOverrideEntry> PluginFactionOverrides { get; set; } =
         [
             new() { PluginName = "Whiterun", FactionEditorID = "TownWhiterunFaction" },
@@ -131,9 +153,8 @@ namespace FarmAnimalOwnershipProject
             new() { PluginName = "Skaal", FactionEditorID = "DLC2SVGreathallFaction" },
         ];
 
-        [DisplayName("Manual Faction Matches")]
-        [Description("Matches a cell/location EditorID to a faction. Only consulted once naming conventions (Town/Farm/Mill patterns) have already had a chance to resolve one. Be careful not to use too broad terms! EditorID can be either a CELL or a LOCATION EditorID.")]
-        [JsonProperty]
+        [SynthesisSettingName("Manual faction matches (cell/location EditorID -> faction EditorID)")]
+        [SynthesisTooltip("Tries an exact Cell or Location EditorID first, then a partial match in either direction, also trying IDs without trailing digits. '*' and '?' are literal here.")]
         public List<ManualFactionMatchEntry> ManualFactionMatches { get; set; } =
         [
             // Vanilla Towns
@@ -167,7 +188,7 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "LeftHandMine", FactionEditorID = "TownLeftHandMineFaction" },
             new() { EditorID = "Stonehills", FactionEditorID = "TownStonehillsFaction" },
             new() { EditorID = "BluePalace", FactionEditorID = "SolitudeBluePalaceFaction" },
-            
+
             // Modded Locations
             new() { EditorID = "BearsCaveMillLocation", FactionEditorID = "RG439BearsCaveMillFaction" },
             new() { EditorID = "KynesgroveFarmsLocationTGCoKG", FactionEditorID = "KynesgroveRagnasAndHerleifsHouseFactionTGCoKG" },
@@ -178,7 +199,7 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "GraniteHill", FactionEditorID = "TownGraniteHillFaction" },
             new() { EditorID = "HalloftheVigilant", FactionEditorID = "VigilantOfStendarrFaction" },
             new() { EditorID = "WBPT", FactionEditorID = "SolitudeBluePalaceFaction" },
-            
+
             // DLC Locations
             new() { EditorID = "TelMithryn", FactionEditorID = "TelMithrynFaction" },
             new() { EditorID = "DLC2SkaalVillageLocation", FactionEditorID = "DLC2SVGreathallFaction" },
@@ -193,5 +214,9 @@ namespace FarmAnimalOwnershipProject
             new() { EditorID = "MorKhazgur", FactionEditorID = "TownMorKhazgurFaction" },
             new() { EditorID = "Narzulbur", FactionEditorID = "TownNarzulburFaction" },
         ];
+
+        [SynthesisSettingName("Verbose logging")]
+        [SynthesisTooltip("Optional report details, all off by default.")]
+        public VerboseSettings Verbose { get; set; } = new();
     }
 }
